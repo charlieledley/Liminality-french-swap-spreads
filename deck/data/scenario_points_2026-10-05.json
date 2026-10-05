@@ -4,20 +4,23 @@
  "level": "at-expiry 1y France swap spread vs 6m Euribor swap",
  "pct_window_start": "2010-01-01",
  "data_asof": "2026-10-02",
- "source": "analysis/spread_history.py; docs/scenario-points-2026-10-05.md; decision 0005",
+ "source": "analysis/spread_history.py; docs/scenario-points-2026-10-05.md; decision 0005; Charlie's edits 2026-10-05 evening",
  "named": [
-  {"id": "S1", "label": "90th percentile since 2010", "spread_bp": 64, "from": "1y ladder p90 (64.1)"},
-  {"id": "S2", "label": "Median since 2010", "spread_bp": 30, "from": "1y ladder p50 (29.7)"},
-  {"id": "S3", "label": "10th percentile since 2010", "spread_bp": 12, "from": "1y ladder p10 (12.1)"},
-  {"id": "S4", "label": "Roll to spot (1y spread unchanged)", "spread_bp": 6, "from": "1y today (5.9)"},
-  {"id": "S5", "label": "Cheapest 1y since 2010", "spread_bp": -2, "from": "1y ladder min (-2.0, 2025-01-03)"},
-  {"id": "S6", "label": "No roll (bond spread unchanged)", "spread_bp": -83, "from": "FRTR 3.25 02/25/32 today (-82.5)"},
-  {"id": "S7", "label": "5y point at its euro-crisis low", "spread_bp": -91, "from": "5y ladder since 2010 min (-90.8, 2011-11-16)"},
-  {"id": "S8", "label": "Italy, November 2011, 1y point", "spread_bp": -556, "from": "Italy 1y min 2010-13 (-556.1, 2011-11-09)"},
-  {"id": "BE", "label": "Investment break-even", "spread_bp": null, "from": "solve: 4y IRR = 0"},
-  {"id": "IMP", "label": "Full impairment at expiry", "spread_bp": null, "from": "solve: floor reached"}
+  {"id": "S1", "label": "Median since 2010", "spread_bp": 30, "from": "1y ladder p50 (29.7)"},
+  {"id": "S2", "label": "10th percentile since 2010", "spread_bp": 12, "from": "1y ladder p10 (12.1)"},
+  {"id": "S3", "label": "Roll to spot: bond rolls to a 1y spread of -1.3bp, within 1bp of the 1y point's cheapest since 2010", "spread_bp": -1.3, "from": "Charlie's model, interpolated to the bond's maturity at expiry; 1y ladder min is -2.0 (2025-01-03)"},
+  {"id": "S4", "label": "No roll: bond spread unchanged at -83bp, within 8bp of the 5y point's euro-crisis low", "spread_bp": -83, "from": "FRTR 3.25 02/25/32 today (-82.5); 5y ladder since 2010 min is -90.8 (2011-11-16)"},
+  {"id": "S5", "label": "Italy 2011 crisis level: the 1y point was below -350bp on only 29 trading days, 4 Nov to 14 Dec 2011", "spread_bp": -350, "from": "Italy 1y vs 6m Euribor, 2010-13; never below -350 outside those weeks"},
+  {"id": "BE", "label": "Investment break-even", "spread_bp": -445, "from": "solved in Charlie's model"},
+  {"id": "S6", "label": "Italy, 9 November 2011, 1y point at its euro-crisis low", "spread_bp": -556, "from": "Italy 1y min 2010-13 (-556.1, 2011-11-09)"},
+  {"id": "IMP", "label": "Full impairment at expiry", "spread_bp": -572, "from": "solved in Charlie's model"}
  ],
- "grid_bp": [64, 40, 30, 20, 12, 6, 0, -25, -50, -75, -91, -100, -150, -200, -300, -400, -500, -556, -600],
+ "dropped_2026-10-05": [
+  "90th percentile since 2010 (+64): dropped, Charlie",
+  "Cheapest 1y since 2010 (-2): merged into roll-to-spot, 0.7bp apart",
+  "5y point at its euro-crisis low (-91): merged into no-roll, 8bp and 0.5pp of IRR apart"
+ ],
+ "grid_bp": [64, 40, 30, 20, 12, 6, 0, -25, -50, -75, -91, -100, -150, -200, -300, -350, -400, -445, -500, -556, -572, -600],
  "irr_moic": null,
  "model_inputs": null
 }

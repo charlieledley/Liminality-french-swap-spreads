@@ -95,19 +95,18 @@ def build():
     def pct(level):
         return float(np.interp(level, lx, ly)) if lx[0] <= level <= lx[-1] else (0.0 if level < lx[0] else 100.0)
 
+    on_grid = {g["spread_bp"] for g in grid}
     named = []
     for n in pts["named"]:
-        s = n["spread_bp"]
-        if n["id"] == "S4":
-            s = ROLL_TO_SPOT_BP
-            n = dict(n, label="Roll to spot (bond rolls to a 1y spread of -1.3bp)", from_="interpolated to the bond's maturity at expiry (Charlie)")
+        s = float(n["spread_bp"])
         if n["id"] == "BE":
             s = next(g["spread_bp"] for g in grid if g["moic"] == 1.0)
         if n["id"] == "IMP":
             s = next(g["spread_bp"] for g in grid if g["moic"] == 0.0)
         named.append({"id": n["id"], "label": n["label"], "spread_bp": s,
                       "irr": interp(grid, s, "irr"), "moic": interp(grid, s, "moic"),
-                      "pct_since_2010": pct(s), "from": n.get("from_", n["from"])})
+                      "pct_since_2010": pct(s), "from": n["from"],
+                      "return_source": "spreadsheet grid" if s in on_grid else "linear interpolation between grid points"})
     out = {"received": ASOF, "model_file": os.path.relpath(MODEL, os.path.join(HERE, "..")),
            "basis": "6m Euribor swap, swap minus bond, bp", "fee_basis": inputs.get("Gross of Fees", "Gross of Fees"),
            "irr_moic_convention": f"IRR = MOIC^(1/{T:.3f}) - 1 at every spreadsheet point (implied horizon {T:.3f}y; stated {inputs['Yrs Time to Expiry']:.3f}y)",
@@ -125,14 +124,16 @@ def workbook(out, path):
     n = pd.DataFrame(out["named"])
     n["IRR (%)"] = n["irr"] * 100
     named_df = n.rename(columns={"id": "#", "label": "Scenario", "spread_bp": "1y spread at expiry (bp)", "moic": "MOIC",
-                                 "pct_since_2010": "Percentile since 2010 (%)", "from": "Level from"})[
-        ["#", "Scenario", "1y spread at expiry (bp)", "IRR (%)", "MOIC", "Percentile since 2010 (%)", "Level from"]]
+                                 "pct_since_2010": "Percentile since 2010 (%)", "from": "Level from",
+                                 "return_source": "Return from"})[
+        ["#", "Scenario", "1y spread at expiry (bp)", "IRR (%)", "MOIC", "Percentile since 2010 (%)", "Level from", "Return from"]]
     inp = pd.DataFrame({"Input": list(out["model_inputs"]), "Value": [str(v) for v in out["model_inputs"].values()]})
     sheets = {
         "Scenarios": [
             Block("Named scenarios: 4y IRR and MOIC by at-expiry 1y spread (vs 6m Euribor, swap minus bond)", named_df,
                   label_col="#", formats={"1y spread at expiry (bp)": "num1", "IRR (%)": "pct1", "MOIC": "num2",
-                                          "Percentile since 2010 (%)": "num0", "Scenario": "text", "Level from": "text"},
+                                          "Percentile since 2010 (%)": "num0", "Scenario": "text", "Level from": "text",
+                                          "Return from": "text"},
                   note="IRR and MOIC from Charlie's spreadsheet (gross of fees), linearly interpolated between grid points where a "
                        "scenario falls off the grid. Percentile = position on the since-2010 daily ladder of the 1y France spread, low = cheap."),
             Block("Model inputs, as used in the spreadsheet", inp, label_col="Input", formats={"Value": "text"},
