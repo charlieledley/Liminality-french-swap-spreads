@@ -30,7 +30,16 @@ between the two nearest grid points.
 - Cheapest 1y since 2010 (-2bp): merged into roll-to-spot; the two are 0.7bp apart.
 - 5y point at its euro-crisis low (-91bp): merged into no-roll; 8bp and 0.5pp of IRR apart.
 
-## The Italy -350bp row, checked against the data
+## Update 2026-10-05 (evening): yields moved to Bloomberg generics (decision 0004 reversed)
+
+The levels and labels of S3, S4, S5 and S6 are now read from the history by
+`scenario_returns.py` rather than typed. On generics: 1y low since 2010 is -8bp (2024-11-08), so
+S3 is 6.5bp above it rather than within 1bp; the 5y point's low since 2010 is Friday's -83bp, the
+bond itself, so S4 is "the 5-year point's cheapest since 2010"; Italy below -350bp on 28 days;
+Italy's 1y low -615bp on 2011-11-09, below the -572bp full-impairment level, so S6 is a total loss.
+The table and the Italy section below describe the earlier CMT construction and are kept for the record.
+
+## The Italy -350bp row, checked against the data (CMT construction, superseded)
 
 Charlie recalled that Italy's 1y spread was below -350bp for only about 45 days in late 2011.
 On the deck's basis (vs 6m Euribor) it was below -350bp on **29 trading days, 2011-11-04 to

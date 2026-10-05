@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""French swap spreads investor deck, first build (2026-10-05).
+"""French swap spreads investor deck (first build 2026-10-05; round-1 edits held for rebuild).
 
 Running order follows docs/deck-plan-2026-10-04.md. Every figure on a slide is read from
 deck/data/*.json, written by analysis/spread_history.py and analysis/scenario_returns.py;
@@ -7,9 +7,8 @@ nothing numeric is typed here. Text that Charlie left in brackets in his draft o
 carried as he wrote it and flagged with an internal note.
 
 Conventions on every slide that shows a spread: 1y and 5y France swap spreads versus the 6m
-Euribor swap, swap minus bond, so a cheap OAT reads negative (decisions 0002, 0003); Citi
-constant-maturity yields from 2011-09-22, Bloomberg generic benchmarks before (0004);
-percentiles since 2010-01-01 (0005). IRR and MOIC are Charlie's, gross of fees.
+Euribor swap, swap minus bond, so a cheap OAT reads negative (decisions 0002, 0003); Bloomberg
+generic benchmark yields throughout (0004, reversed 2026-10-05); percentiles since 2010-01-01 (0005). IRR and MOIC are Charlie's, gross of fees.
 
 INTERNAL_NOTES = False strips every internal note for the external build.
 Output: exports/Liminality_French_Swap_Spreads_<date>.pptx (gitignored; rebuild with this file).
@@ -25,7 +24,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_TICK_LABEL_POSITION
 from pptx.enum.dml import MSO_LINE
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Inches, Pt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +38,7 @@ INTERNAL_NOTES = True
 DATA = os.path.join(HERE, "data")
 SH = json.load(open(os.path.join(DATA, f"spread_history_{ASOF}.json"), encoding="utf-8"))
 SC = json.load(open(os.path.join(DATA, f"scenario_irr_moic_{ASOF}.json"), encoding="utf-8"))
-OUT = os.path.join(HERE, "..", "exports", f"Liminality_French_Swap_Spreads_{ASOF}.pptx")
+OUT = os.environ.get("DECK_OUT") or os.path.join(HERE, "..", "exports", f"Liminality_French_Swap_Spreads_{ASOF}.pptx")
 POLYMARKET = os.path.join(HERE, "..", "docs", "drafts", "draft-images", "slide10_Picture_5.png")
 
 B = SH["primary_basis"]                       # "eur6m"
@@ -70,8 +69,40 @@ def pc(x, dp=1):
 
 
 def rarer(pct, since=None):
-    """'lower than 99.8% of days since 2010' reads better than '0.2th percentile'."""
+    """'lower than 99.8% of days since 2010' reads better than '0.2th percentile'; at the low itself, say so."""
+    if pct <= 0.0:
+        return "the cheapest since %s" % (since or PCT_YEAR)
     return "lower than %s%% of days since %s" % (("%.1f" % (100 - pct)).rstrip("0").rstrip("."), since or PCT_YEAR)
+
+
+def low_clause(ladder):
+    """'; the low was -91bp (16 November 2011)' unless the low is today's observation."""
+    if dt.date.fromisoformat(ladder["min_date"]) == DATA_DATE:
+        return ""
+    return "; the low was %s (%s)" % (bp(ladder["min"]), longdate(ladder["min_date"]))
+
+
+def days_phrase(n):
+    return "%d day%s" % (n, "" if n == 1 else "s") if n else "no day"
+
+
+def rarity_5y():
+    """How rare the bond's spread is for the 5-year point since the window start, phrased from the count."""
+    n = CUR["days_5y_below_frtr32"]
+    if n == 0:
+        return "the cheapest since %s" % PCT_YEAR
+    return ("a level seen on only %s since %s, %s"
+            % (days_phrase(n), PCT_YEAR, span_phrase(CUR["days_5y_below_frtr32_span"])))
+
+
+def span_phrase(span):
+    """'all in November 2011' when the days fall in one month, else 'between <d1> and <d2>'."""
+    if not span:
+        return "never"
+    a, b = (dt.date.fromisoformat(x) for x in span)
+    if (a.year, a.month) == (b.year, b.month):
+        return "all in %s" % a.strftime("%B %Y")
+    return "between %s and %s" % (longdate(a), longdate(b))
 
 
 def longdate(d):
@@ -108,16 +139,17 @@ def internal_note(slide, x, y, w, text, size=10.5):
 
 
 def xy_chart(slide, x, y, w, h, series, yfmt='0"bp"', legend=True, ymin=None, ymax=None,
-             xmin=None, xmax=None, lab=9.5, major_years=2):
-    """Lines against a date axis. series: list of dicts name, x (dates), y, colour, width, dash."""
+             xmin=None, xmax=None, lab=9.5, major_years=2, xfmt="yyyy", xunit=None, markers=False):
+    """Lines against a date axis (x as ISO strings) or a numeric axis (x as numbers; pass xfmt and xunit).
+    series: list of dicts name, x, y, colour, width, dash."""
     cd = XyChartData()
     for sr in series:
         ser = cd.add_series(sr["name"])
         for a, b in zip(sr["x"], sr["y"]):
             if b is not None:
                 ser.add_data_point(serial(a) if isinstance(a, str) else a, b)
-    gf = slide.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER_LINES_NO_MARKERS, Inches(x), Inches(y),
-                                Inches(w), Inches(h), cd)
+    gf = slide.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER_LINES if markers else XL_CHART_TYPE.XY_SCATTER_LINES_NO_MARKERS,
+                                Inches(x), Inches(y), Inches(w), Inches(h), cd)
     c = gf.chart
     c.has_title = False
     c.font.name = BFONT
@@ -134,6 +166,13 @@ def xy_chart(slide, x, y, w, h, series, yfmt='0"bp"', legend=True, ymin=None, ym
         if sr.get("dash"):
             pl.format.line.dash_style = MSO_LINE.DASH
         pl.smooth = False
+        if markers:
+            from pptx.enum.chart import XL_MARKER_STYLE
+            pl.marker.style = XL_MARKER_STYLE.CIRCLE
+            pl.marker.size = 6
+            pl.marker.format.fill.solid()
+            pl.marker.format.fill.fore_color.rgb = sr["colour"]
+            pl.marker.format.line.fill.background()
     va, ca = c.value_axis, c.category_axis
     va.has_major_gridlines = True
     va.major_gridlines.format.line.color.rgb = RULE
@@ -141,7 +180,7 @@ def xy_chart(slide, x, y, w, h, series, yfmt='0"bp"', legend=True, ymin=None, ym
     va.format.line.fill.background()
     ca.has_major_gridlines = False
     ca.format.line.color.rgb = RULE
-    for ax, fmt in ((va, yfmt), (ca, "yyyy")):
+    for ax, fmt in ((va, yfmt), (ca, xfmt)):
         ax.tick_label_position = XL_TICK_LABEL_POSITION.LOW
         ax.tick_labels.font.size = Pt(lab)
         ax.tick_labels.font.color.rgb = GREY
@@ -152,12 +191,74 @@ def xy_chart(slide, x, y, w, h, series, yfmt='0"bp"', legend=True, ymin=None, ym
     if ymax is not None:
         va.maximum_scale = ymax
     if xmin is not None:
-        ca.minimum_scale = serial(xmin)
+        ca.minimum_scale = serial(xmin) if isinstance(xmin, str) else xmin
     if xmax is not None:
-        ca.maximum_scale = serial(xmax)
-    # 366 for yearly ticks: 365 drifts a day a year and labels a leap year twice ("2012 2012")
-    ca.major_unit = 366 if major_years == 1 else int(365.25 * major_years)
+        ca.maximum_scale = serial(xmax) if isinstance(xmax, str) else xmax
+    if xunit is not None:
+        ca.major_unit = xunit
+    else:
+        # 366 for yearly ticks: 365 drifts a day a year and labels a leap year twice ("2012 2012")
+        ca.major_unit = 366 if major_years == 1 else int(365.25 * major_years)
     return c
+
+
+def col_chart(slide, x, y, w, h, cats, series, yfmt='0.00"%"', lab=9.5, ymin=None, ymax=None, gap=60):
+    """Clustered columns; series: list of (name, values, colour)."""
+    from pptx.chart.data import CategoryChartData
+    cd = CategoryChartData()
+    cd.categories = cats
+    for nm, vals, _c in series:
+        cd.add_series(nm, vals)
+    gf = slide.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(x), Inches(y), Inches(w), Inches(h), cd)
+    c = gf.chart
+    c.has_title = False
+    c.font.name = BFONT
+    c.font.size = Pt(lab)
+    c.has_legend = True
+    c.legend.position = XL_LEGEND_POSITION.TOP
+    c.legend.include_in_layout = False
+    c.legend.font.size = Pt(10.5)
+    c.legend.font.color.rgb = GREY
+    pl = c.plots[0]
+    pl.gap_width = gap
+    pl.has_data_labels = True
+    pl.data_labels.number_format = yfmt
+    pl.data_labels.number_format_is_linked = False
+    pl.data_labels.font.size = Pt(lab)
+    pl.data_labels.font.color.rgb = GREY
+    for sr, (_n, _v, col) in zip(pl.series, series):
+        sr.format.fill.solid()
+        sr.format.fill.fore_color.rgb = col
+        sr.format.line.fill.background()
+    va, ca = c.value_axis, c.category_axis
+    va.has_major_gridlines = True
+    va.major_gridlines.format.line.color.rgb = RULE
+    va.major_gridlines.format.line.width = Pt(0.6)
+    va.format.line.fill.background()
+    ca.format.line.color.rgb = RULE
+    for ax in (va, ca):
+        ax.tick_labels.font.size = Pt(lab)
+        ax.tick_labels.font.color.rgb = GREY
+    va.tick_labels.number_format = yfmt
+    va.tick_labels.number_format_is_linked = False
+    if ymin is not None:
+        va.minimum_scale = ymin
+    if ymax is not None:
+        va.maximum_scale = ymax
+    return c
+
+
+def arrow(slide, x, y, w, h, colour, left=False):
+    a = slide.shapes.add_shape(MSO_SHAPE.LEFT_ARROW if left else MSO_SHAPE.RIGHT_ARROW, Inches(x), Inches(y), Inches(w), Inches(h))
+    a.fill.solid(); a.fill.fore_color.rgb = colour; a.line.fill.background(); a.shadow.inherit = False
+    return a
+
+
+def box(slide, x, y, w, h, head, body, fill=NAVY, ink=WHITE, sub_ink=None, hsize=14, bsize=10.5):
+    card(slide, x, y, w, h, fill=fill, line=None if fill != WHITE else RULE)
+    tbox(slide, x + 0.15, y + 0.12, w - 0.30, h - 0.24, [(head, {"bold": True, "size": hsize, "font": HFONT}),
+         (body, {"size": bsize, "colour": sub_ink or ink})], colour=ink, align=PP_ALIGN.CENTER, space_after=3,
+         anchor=MSO_ANCHOR.MIDDLE)
 
 
 def weekly(col, start=None, end=None):
@@ -175,9 +276,9 @@ def flat(name, level, colour, start, end, width=1.25):
 
 
 FOOT_CONSTRUCTION = ("Spreads are the swap rate less the bond yield, so a cheap OAT reads negative: versus the 6m Euribor swap "
-                     "(Bloomberg EUSA), France and Italy yields from Citi constant-maturity series from September 2011 and "
-                     "Bloomberg generic benchmarks before; the financing leg of the trade is €STR, which sat %s below the 1y "
-                     "Euribor swap and %s below the 5y on %s. Source: Bloomberg, Citi, Liminality calculations."
+                     "(Bloomberg EUSA), France and Italy yields are Bloomberg generic benchmark bonds at each tenor; the financing "
+                     "leg of the trade is €STR, which sat %s below the 1y Euribor swap and %s below the 5y on %s. "
+                     "Source: Bloomberg, Liminality calculations."
                      % (bp(BASIS["1y"]["current"]), bp(BASIS["5y"]["current"]), longdate(DATA_DATE)))
 
 # ================================================================ 1. title
@@ -247,24 +348,26 @@ title(s, "Executive summary: the French opportunity",
 S3, S4, BE = NAMED["S3"], NAMED["S4"], NAMED["BE"]
 _items = [
     ("Buy a %.0f-year-expiry option on a %.0f-year France versus Euribor swap spread." % (round(INP["Yrs Time to Expiry"]), round(INP["Starting Bond Expiry"])), {"bold": True}),
-    "French government bonds (“OATs”) have dislocated against European swaps in recent weeks as the market has "
-    "grown nervous about French public finances, the budget negotiations and the presidential election in the "
-    "spring. The 5-year OAT now yields %s more than the swap, the cheapest since %s, and the bond in the trade "
-    "sits at %s." % (bp(-CUR["fra_5y"]), PCT_YEAR, bp(CUR["frtr32"])),
-    "The entry point is attractive against history, and more so in recent days as levered investors were stopped "
-    "out of positions.",
-    "The exposure normally needs heavy leverage and continual refinancing. Here it is financed for %.1f years, "
-    "non-recourse, at €STR + %dbp, with a floor %dbp below the forward spread." % (INP["Yrs Time to Expiry"], INP["Funding E+ (bps)"], -INP["Floor strike (from ATMF)"]),
+    # Charlie's wording, 2026-10-05 (round-1 edit); the figure and the rarity clause are computed
+    "French government bonds (“OATs”) have dislocated against swaps in recent weeks as the market has grown "
+    "nervous about slipping French public finances amid increasing political uncertainty around budget negotiations. "
+    "Spring presidential elections loom, with an increased probability of a populist government on the left or right.",
+    # the closing sentence of the bullet above, moved to its own bullet (Charlie, 2026-10-05)
+    "5-year OATs now yield %s more than swaps, %s." % (bp(-CUR["frtr32"]), rarity_5y()),
+    # Charlie's wording, 2026-10-05 (round-1 edit); the three terms are computed from the model inputs
+    "The attractiveness of the opportunity is heavily dependent on a proprietary financing structure: our position is "
+    "financed for %.1f years – within a year of maturity – with non-recourse leverage at €STR + %dbp, and a floor "
+    "only %dbp out of the money." % (INP["Yrs Time to Expiry"], INP["Funding E+ (bps)"], -INP["Floor strike (from ATMF)"]),
     "Over the life of the option the bond rolls from the %.1f-year point of the curve to the 1-year point, where "
     "the spread has stayed anchored through fourteen years including the euro crisis. If nothing changes, the roll "
     "alone returns %s a year (%.1fx). If the bond's spread never recovers, %s (%.1fx). Permanent loss of capital "
-    "needs the 1-year spread below %s at expiry, a level only Italy reached, for six weeks in late 2011."
+    "needs the 1-year spread below %s at expiry, a level only Italy has reached, in November 2011."
     % (INP["Starting Bond Expiry"], pc(S3["irr"] * 100, 0), S3["moic"], pc(S4["irr"] * 100, 0), S4["moic"], bp(BE["spread_bp"])),
 ]
 bullets(s, M, 1.62, 7.55, _items, size=13.2, gap=9, line=1.12)
 _x, _w = 8.55, 4.16
-stat(s, _x, 1.62, _w, bp(CUR["fra_5y"]), "5-year France swap spread, %s; %s"
-     % (longdate(DATA_DATE), rarer(CUR[f"fra_5y_pct_since_{PCT_YEAR}"])), vcolour=NEG, h=1.30)
+stat(s, _x, 1.62, _w, bp(CUR["frtr32"]), "%.1f-year OAT swap spread, %s; %s"
+     % (INP["Starting Bond Expiry"], longdate(DATA_DATE), rarity_5y()), vcolour=NEG, h=1.30)
 stat(s, _x, 3.07, _w, "%s | %.1fx" % (pc(S3["irr"] * 100, 0), S3["moic"]),
      "4-year IRR and multiple if the spread curve is unchanged at expiry (roll to spot)", vcolour=POS, h=1.30)
 stat(s, _x, 4.52, _w, bp(BE["spread_bp"]), "1-year spread at expiry for break-even; %s for full impairment"
@@ -273,24 +376,38 @@ footnote(s, "Returns gross of fees, from Liminality's scenario model with %sm of
             "bond notional; see the scenario page for the construction. %s" % ("1.1", FOOT_CONSTRUCTION))
 
 # ================================================================ 5. what is a swap spread
+# Modelled on slide 19 of the US deck (Charlie, round-1 edit): definition on the left, the curves on the right.
+# Only the 1y and 5y points are on hand for France, so the chart shows those two tenors until the full OAT and
+# 6m Euribor swap curves are pulled.
+LV = SH["levels_pct"]
 s = sl()
 title(s, "What is a swap spread?", "The gap between a government bond yield and the swap rate of the same maturity")
-_y = bullets(s, M, 1.62, 7.55, [
+bullets(s, M, 1.62, 5.60, [
     ("A swap spread is the difference between the yield on a government bond, here a French OAT, and the fixed "
      "rate on an interest rate swap of the same maturity.", {}),
-    ("To be “long” the swap spread, buy the OAT and pay fixed on the swap. The duration risk cancels; what is "
+    ("To be “long” the swap spread, buy the OAT and pay fixed on the swap, fully hedging the duration. What is "
      "left is the bond's price relative to the swap curve.", {}),
-    ("Throughout this deck the spread is quoted as the swap rate less the bond yield, so a bond that is cheap to "
-     "swaps reads as a negative number.", {}),
-    ("For most of the last fifteen years euro swaps have traded rich (lower yield) and government bonds cheap "
-     "(higher yield), because many participants take duration synthetically through swaps. The size of that gap, "
-     "and how far it can move, is the trade.", {}),
-], size=13.2, gap=10, line=1.12)
-_x, _w = 8.55, 4.16
-stat(s, _x, 1.62, _w, bp(CUR["fra_1y"]), "1-year France swap spread, %s" % longdate(DATA_DATE), vcolour=NAVY, h=1.22)
-stat(s, _x, 2.98, _w, bp(CUR["fra_5y"]), "5-year France swap spread, %s" % longdate(DATA_DATE), vcolour=NEG, h=1.22)
-stat(s, _x, 4.34, _w, bp(L1["p50"]), "Median 1-year spread since %s" % PCT_YEAR, vcolour=GREY, h=1.22)
-footnote(s, FOOT_CONSTRUCTION)
+    ("In this deck the spread is the swap rate less the bond yield, so a bond that is cheap to swaps reads as a "
+     "negative number.", {}),
+    ("Many participants take duration synthetically through swaps, which, among other factors, creates supply and "
+     "demand imbalances between swaps and bonds. For most of the last fifteen years euro swaps have traded rich "
+     "(lower yield) and OATs cheap (higher yield).", {}),
+], size=12.8, gap=9, line=1.12)
+# the two-panel curve picture of the US deck's slide 19, for France: yields above, spread beneath
+CV = json.load(open(os.path.join(DATA, "curve_2026-10-02.json"), encoding="utf-8"))
+tbox(s, 6.60, 1.50, 6.11, 0.30, "French yield curves, %s" % longdate(CV["asof"]), size=11, bold=True, colour=NAVY, font=HFONT)
+xy_chart(s, 6.60, 1.78, 6.11, 2.55, [
+    {"name": "OAT yield", "x": CV["years"], "y": CV["oat_yield_pct"], "colour": NAVY, "width": 2.0},
+    {"name": "6m Euribor swap rate", "x": CV["years"], "y": CV["swap_rate_pct"], "colour": GOLD, "width": 2.0},
+], yfmt='0.0"%"', xfmt='0"y"', xunit=5, xmin=0, xmax=30, markers=True, lab=9,
+    ymin=0.5 * int(min(CV["swap_rate_pct"]) * 2), ymax=0.5 * (int(max(CV["oat_yield_pct"]) * 2) + 1))
+tbox(s, 6.60, 4.36, 6.11, 0.26, "Swap spread at each point of the curve (swap less OAT)", size=11, bold=True, colour=NAVY, font=HFONT)
+xy_chart(s, 6.60, 4.70, 6.11, 1.80, [
+    {"name": "Swap spread", "x": CV["years"], "y": CV["spread_bp"], "colour": NEG, "width": 2.0},
+], yfmt='0"bp"', xfmt='0"y"', xunit=5, xmin=0, xmax=30, markers=True, legend=False, lab=9)
+footnote(s, "Bloomberg I14 France sovereign curve and S45 EUR swap curve versus 6m Euribor, mid, as of %s; the 5-year sovereign "
+            "point is the FRTR 3¼ 02/25/2032 yield. Spread is the swap rate less the bond yield. Source: Bloomberg, Liminality "
+            "calculations." % longdate(CV["asof"]))
 
 # ================================================================ 6. the dislocation
 s = sl()
@@ -303,8 +420,8 @@ xy_chart(s, M, 1.55, 8.30, 4.95, [
     {"name": "1-year", "x": _x1, "y": _y1, "colour": GOLD, "width": 2.0},
 ], xmin=SH["pct_start"], xmax=str(DATA_DATE))
 _x, _w = 9.25, 3.46
-stat(s, _x, 1.55, _w, bp(CUR["fra_5y"]), "5-year today, %s; the low was %s (%s)"
-     % (rarer(CUR[f"fra_5y_pct_since_{PCT_YEAR}"]), bp(L5["min"]), longdate(L5["min_date"])), vcolour=NEG, h=1.50)
+stat(s, _x, 1.55, _w, bp(CUR["fra_5y"]), "5-year today, %s%s"
+     % (rarer(CUR[f"fra_5y_pct_since_{PCT_YEAR}"]), low_clause(L5)), vcolour=NEG, h=1.50)
 stat(s, _x, 3.20, _w, bp(CUR["fra_1y"]), "1-year today, %s; it has never closed below %s"
      % (rarer(CUR[f"fra_1y_pct_since_{PCT_YEAR}"]), bp(L1["min"])), vcolour=NAVY, h=1.50)
 stat(s, _x, 4.85, _w, bp(CUR["frtr32"]), "FRTR 3¼ 02/25/2032, the bond in the trade, %.1f years to maturity"
@@ -328,54 +445,155 @@ internal_note(s, M, 5.62, CW, "Bullets are Charlie's placeholders from the 2026-
                               "this page (QT, dealer balance sheets, Treasury supply; year-end dealer inventories, Q1 crowding, "
                               "Liberation Day unwind) is the model for the final wording.", size=10)
 
-# ================================================================ 8. what is the trade
+# ================================================================ 8. what is the trade: the TRS, as on slide 24 of the US deck
+BOND = INP["Bond Underlier"].replace("3 1/4", "3¼")
 s = sl()
-title(s, "What is the trade?", "Long the bond, pay fixed on the swap, financed non-recourse for the life of the option")
-_steps = [
-    ("Buy the bond", "%s, maturing %s. On %s it yielded %s more than the matching 6m Euribor swap."
-     % (INP["Bond Underlier"].replace("3 1/4", "3¼"), longdate(INP["Bond Maturity"]), longdate(INP["Trade Date"]), bp(-INP["Entry spread"]))),
-    ("Pay fixed on the swap", "A 6m Euribor interest rate swap of the same maturity, so the package has no duration and "
-     "its value moves only with the spread."),
-    ("Finance the package", "A total return swap provides the leverage and locks the funding at €STR + %dbp until %s, "
-     "the option expiry, %.1f years away." % (INP["Funding E+ (bps)"], longdate(INP["Opt Expiry"]), INP["Yrs Time to Expiry"])),
-    ("The floor makes it non-recourse", "An option struck %dbp below the forward spread caps the loss at the capital "
-     "committed: %sm per 100m of bond notional, option premium included." % (-INP["Floor strike (from ATMF)"], "1.1")),
+title(s, "What is the trade?", "Long the OAT, pay fixed on the swap, financed through a total return swap with a floor")
+# Bank top-left, Liminality top-right, the underlying bottom-left, as the US page lays it out
+_bx, _by, _bw, _bh = 1.40, 1.75, 3.00, 1.15
+_lx = 8.95
+box(s, _bx, _by, _bw, _bh, "Bank", "total return payer")
+box(s, _lx, _by, _bw, _bh, "Liminality", "total return receiver", fill=ICE_BG, ink=NAVY, sub_ink=GREY)
+box(s, _bx, 4.05, _bw, _bh, "Underlying asset", "%s and a matched 6m Euribor swap, pay fixed" % BOND, fill=WHITE, ink=NAVY, sub_ink=GREY, hsize=13)
+_ln = s.shapes.add_connector(1, Inches(_bx + _bw / 2), Inches(_by + _bh), Inches(_bx + _bw / 2), Inches(4.05))
+_ln.line.color.rgb = GREY; _ln.line.width = Pt(1.5)
+tbox(s, _bx + _bw / 2 + 0.12, 3.20, 2.4, 0.5, "underlying cash flows", size=10.5, colour=GREY)
+_ax, _aw = _bx + _bw + 0.20, _lx - (_bx + _bw) - 0.40
+arrow(s, _ax, 1.95, _aw, 0.34, POS)
+tbox(s, _ax, 1.50, _aw, 0.40, "total return on the package: carry plus price change", size=11, bold=True, colour=POS, align=PP_ALIGN.CENTER)
+arrow(s, _ax, 2.48, _aw, 0.34, GOLD, left=True)
+tbox(s, _ax, 2.86, _aw, 0.40, "€STR + %dbp, %.1f years of funding locked in" % (INP["Funding E+ (bps)"], INP["Yrs Time to Expiry"]),
+     size=11, bold=True, colour=GOLD, align=PP_ALIGN.CENTER)
+note(s, 5.30, 4.05, 6.65, "Unique feature: limited downside",
+     "Liminality buys an option struck %dbp out of the money. The most that can be lost is the capital posted, %sm per 100m "
+     "of bond notional including the option premium, and there is no margin call or refinancing before %s."
+     % (-INP["Floor strike (from ATMF)"], "1.1", longdate(INP["Opt Expiry"])), size=11.5, line_=RULE, fill=WHITE)
+_terms = [["Bond", "Swap", "Financing", "Option expiry", "Floor", "Capital"],
+          [BOND, "6m Euribor, pay fixed, matched maturity", "TRS at €STR + %dbp" % INP["Funding E+ (bps)"],
+           "%s (%.1f years)" % (longdate(INP["Opt Expiry"]), INP["Yrs Time to Expiry"]),
+           "%dbp below the forward spread" % -INP["Floor strike (from ATMF)"], "%sm per 100m notional" % "1.1"]]
+table(s, M, 5.62, CW, _terms, size=10.0, rowh=0.42, headh=0.32, aligns=[PP_ALIGN.LEFT] * 6, neutral=(1,))
+footnote(s, "Terms as modelled on %s; entry spread %s versus the 6m Euribor swap, swap minus bond. Final terms are subject to "
+            "documentation with the counterparty." % (longdate(INP["Trade Date"]), bp(INP["Entry spread"], dp=1)))
+
+# ================================================================ 9. the arithmetic: carry and roll-down
+s = sl()
+title(s, "Where the return comes from", "Carry on the package, the floating-rate basis, and roll-down; all per 100m of bond notional")
+_swap_matched = LV["frtr32_yield"] + INP["Entry spread"] / 100.0        # the matched-maturity swap, from the model's entry spread
+_cw3 = (CW - 0.60) / 3
+_y0 = 1.62
+_cards = [
+    ("1  Carry on the spread", bp(-INP["Entry spread"], dp=1) + " a year", POS,
+     "Receive the bond yield, %.2f%%. Pay the fixed swap rate of the same maturity, %.2f%%. The difference is the swap "
+     "spread, earned for as long as the position is held." % (LV["frtr32_yield"], _swap_matched)),
+    ("2  The floating legs", "basis less %dbp" % INP["Funding E+ (bps)"], GOLD,
+     "The swap pays us 6m Euribor; the financing charges us €STR + %dbp. In the US version the two floating rates are "
+     "both SOFR and cancel. Here the residual is the 6m Euribor / €STR basis, %s on the 5-year curve today, which widens "
+     "when funding markets are stressed." % (INP["Funding E+ (bps)"], bp(BASIS["5y"]["current"]))),
+    ("3  Roll-down", bp(S3["spread_bp"] - CUR["frtr32"], sign=True) + " over the life", NAVY,
+     "The bond is a %.1f-year bond at %s. At expiry it is a 1-year bond, and the 1-year point sits at %s today. If the "
+     "curve does not move, the spread tightens by that difference as the bond rolls, taken as a price gain."
+     % (INP["Starting Bond Expiry"], bp(CUR["frtr32"]), bp(S3["spread_bp"], dp=1))),
 ]
-_y = 1.62
-for _i, (_hd, _bd) in enumerate(_steps):
-    _iw = 7.55 - 1.10
-    _hh = theight(_bd, _iw, T_CARD, BFONT, False, False, 1.14) + 0.72
-    card(s, M, _y, 7.55, _hh, fill=ICE_BG if _i % 2 == 0 else WHITE, line=None if _i % 2 == 0 else RULE)
-    _n = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(M + 0.20), Inches(_y + (_hh - 0.50) / 2), Inches(0.50), Inches(0.50))
+for _i, (_hd, _big, _col, _bd) in enumerate(_cards):
+    _cx = M + _i * (_cw3 + 0.30)
+    card(s, _cx, _y0, _cw3, 3.55, fill=ICE_BG if _i != 1 else WHITE, line=None if _i != 1 else RULE)
+    tbox(s, _cx + 0.22, _y0 + 0.20, _cw3 - 0.44, 0.34, _hd, size=14, bold=True, font=HFONT)
+    tbox(s, _cx + 0.22, _y0 + 0.62, _cw3 - 0.44, 0.50, _big, size=24, bold=True, font=HFONT, colour=_col)
+    tbox(s, _cx + 0.22, _y0 + 1.30, _cw3 - 0.44, 2.10, _bd, size=11.5, colour=GREY, line=1.16)
+_cap = 100e6 * 1e-4 / 1.1e6 * 100
+note(s, M, 5.42, CW, "On the capital",
+     "Everything above is per 100m of bond notional. The capital committed is %sm, so each 1bp a year of net carry is "
+     "%.1f%% a year on capital, and the roll-down, realised once at a one-year duration, is worth about %.0f%% of capital per "
+     "100bp of tightening. The option premium is the cost that pays for the floor; the IRRs on the scenario page are after it."
+     % ("1.1", _cap, 100e6 * 1e-2 / 1.1e6 * 100), size=11.5, line_=RULE, fill=WHITE)   # 100bp x 1y duration = 1% of notional
+footnote(s, "Levels on %s: bond yield from Bloomberg; matched-maturity swap implied by the model's entry spread of %s; basis from "
+            "the 5-year 6m Euribor swap less the 5-year €STR OIS. Roll-down ignores convexity and any change in the curve. "
+            "Source: Bloomberg, Liminality calculations." % (longdate(DATA_DATE), bp(INP["Entry spread"], dp=1)))
+
+# ================================================================ 10. what a swap spread is, and is not
+# Charlie's argument, from his edit of 2026-10-05, set as prose; wording for his review
+s = sl()
+title(s, "A swap spread is not, in the usual case, a credit spread", "Why the gap exists, and what moves it")
+_y = bullets(s, M, 1.62, CW, [
+    ("Sovereigns that borrow in a currency they print do not, as a rule, default on that debt. A swap spread on such a "
+     "bond is therefore not generally read as a measure of credit risk.", {"size": 14.0}),
+    ("We would argue it is instead the product of three things:", {"size": 14.0}),
+], gap=12, line=1.14)
+_items = [("Plumbing", "An externality of problems in the global financing system that were created by the new regulatory "
+                       "regimes introduced after the global financial crisis: balance-sheet and leverage rules that make it "
+                       "costly for banks to hold and finance government bonds."),
+          ("Financing risk", "Intertwined with that, the risk and cost of financing a leveraged bond position through time, which "
+                             "is why the spread gaps when levered holders are forced out."),
+          ("Supply", "Made more acute by the growth in government bond issuance since the crisis, which has to be absorbed by "
+                     "balance sheets that are now more constrained.")]
+_cw3 = (CW - 0.60) / 3
+for _i, (_hd, _bd) in enumerate(_items):
+    _cx = M + _i * (_cw3 + 0.30)
+    card(s, _cx, _y + 0.10, _cw3, 2.75, fill=ICE_BG if _i % 2 == 0 else WHITE, line=None if _i % 2 == 0 else RULE)
+    _n = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(_cx + 0.22), Inches(_y + 0.32), Inches(0.46), Inches(0.46))
     _n.fill.solid(); _n.fill.fore_color.rgb = NAVY; _n.line.fill.background(); _n.shadow.inherit = False
     _tf = _n.text_frame; _tf.margin_left = _tf.margin_right = 0
     _p = _tf.paragraphs[0]; _p.alignment = PP_ALIGN.CENTER
-    _r = _p.add_run(); _r.text = str(_i + 1); _r.font.size, _r.font.bold, _r.font.name = Pt(18), True, HFONT
+    _r = _p.add_run(); _r.text = "i" * (_i + 1) if _i < 2 else "iii"; _r.font.size, _r.font.bold, _r.font.name = Pt(14), True, HFONT
     _r.font.color.rgb = WHITE
-    tbox(s, M + 0.90, _y + 0.16, _iw, 0.30, _hd, size=14.5, bold=True, font=HFONT, space_after=0)
-    tbox(s, M + 0.90, _y + 0.52, _iw, _hh - 0.60, _bd, size=T_CARD, colour=GREY, line=1.14, space_after=0)
-    _y += _hh + 0.16
-# diagram: bank, Liminality, bond
-_dx, _dw = 8.55, 4.16
-card(s, _dx, 1.62, _dw, 0.95, fill=NAVY)
-tbox(s, _dx + 0.15, 1.72, _dw - 0.30, 0.75, [("Bank", {"bold": True, "size": 14, "font": HFONT}),
-     ("total return payer; holds the bond and the swap", {"size": 10.5})], colour=WHITE, align=PP_ALIGN.CENTER, space_after=2)
-_a1 = s.shapes.add_shape(MSO_SHAPE.DOWN_ARROW, Inches(_dx + 0.55), Inches(2.67), Inches(0.42), Inches(0.72))
-_a2 = s.shapes.add_shape(MSO_SHAPE.UP_ARROW, Inches(_dx + _dw - 0.97), Inches(2.67), Inches(0.42), Inches(0.72))
-for _a, _c in ((_a1, POS), (_a2, GOLD)):
-    _a.fill.solid(); _a.fill.fore_color.rgb = _c; _a.line.fill.background(); _a.shadow.inherit = False
-tbox(s, _dx + 1.05, 2.70, _dw - 2.10, 0.66, [("total return on the spread package", {"colour": POS, "bold": True}),
-     ("€STR + %dbp, fixed to expiry" % INP["Funding E+ (bps)"], {"colour": GOLD, "bold": True})],
-     size=10.5, align=PP_ALIGN.CENTER, space_after=4)
-card(s, _dx, 3.49, _dw, 0.95, fill=ICE_BG)
-tbox(s, _dx + 0.15, 3.59, _dw - 0.30, 0.75, [("Liminality", {"bold": True, "size": 14, "font": HFONT}),
-     ("total return receiver; posts %sm per 100m" % "1.1", {"size": 10.5, "colour": GREY})], colour=NAVY, align=PP_ALIGN.CENTER, space_after=2)
-note(s, _dx, 4.62, _dw, "Limited downside",
-     "The embedded floor, struck %dbp below the at-the-money forward spread, means the most that can be lost is the "
-     "capital posted. There is no margin call and no refinancing before %s." % (-INP["Floor strike (from ATMF)"], longdate(INP["Opt Expiry"])),
-     size=11.0, line_=RULE, fill=WHITE)
-footnote(s, "Terms as modelled on %s. Entry spread %s versus the 6m Euribor swap, swap minus bond. Final terms are subject to "
-            "documentation with the counterparty." % (longdate(INP["Trade Date"]), bp(INP["Entry spread"])))
+    tbox(s, _cx + 0.82, _y + 0.36, _cw3 - 1.04, 0.36, _hd, size=14, bold=True, font=HFONT)
+    tbox(s, _cx + 0.22, _y + 0.98, _cw3 - 0.44, 1.75, _bd, size=11.8, colour=GREY, line=1.16)
+internal_note(s, M, _y + 3.05, CW, "Prose drafted from Charlie's message of 2026-10-05 (\"not a function of credit risk ... (i) an externality "
+                                   "of plumbing problems ... (ii) financing risk ... (iii) growing government bond issuance\"). The expansions "
+                                   "under each heading are Claude's and need his read.", size=9.5)
+
+# ================================================================ 11. France is different
+s = sl()
+title(s, "France is different: it does not print the currency it borrows in",
+      "So a French swap spread can carry sovereign risk in a way a US or UK spread, in practice, does not")
+_y = bullets(s, M, 1.62, 7.55, [
+    ("The United States and the United Kingdom issue debt in a currency their own central bank creates. France issues in "
+     "euros, which the ECB controls on behalf of twenty members.", {"size": 13.5}),
+    ("A French swap spread can therefore price some probability of a sovereign credit event, which is exactly what it "
+     "did for Italy in 2011 and what the market has started to ask about France.", {"size": 13.5}),
+    ("That sets the bar for this investment much higher than for the US trade. The structure meets it two ways: the "
+     "bond rolls to a 1-year maturity by expiry, and the floor caps the loss at the capital posted.", {"size": 13.5}),
+    ("The question the scenario page answers is how far the 1-year spread would have to move for the floor to bind: "
+     "break-even at %s, full impairment at %s, against an Italian low of %s in November 2011."
+     % (bp(NAMED["BE"]["spread_bp"]), bp(NAMED["IMP"]["spread_bp"]), bp(IT["1y"]["min"])), {"size": 13.5}),
+], gap=11, line=1.14)
+_x, _w = 8.55, 4.16
+stat(s, _x, 1.62, _w, bp(NAMED["BE"]["spread_bp"]), "1-year France spread at expiry for break-even", vcolour=NAVY, h=1.22)
+stat(s, _x, 2.98, _w, bp(IT["1y"]["min"]), "Italy's 1-year spread at its worst, %s" % longdate(IT["1y"]["min_date"]), vcolour=NEG, h=1.22)
+stat(s, _x, 4.34, _w, "%d days" % IT["1y"]["days_below_stress"], "trading days Italy's 1-year spread spent below %s, all in late 2011"
+     % bp(IT["1y"]["stress_level_bp"]), vcolour=VIOLET, h=1.22)
+footnote(s, FOOT_CONSTRUCTION)
+internal_note(s, M, 5.75, 7.55, "Prose drafted from Charlie's message of 2026-10-05 (\"for France, they don't print their own currency, so there "
+                                "IS potentially sovereign risk ... this makes the bar MUCH higher\"). Needs his read.", size=9.5)
+
+# ================================================================ 12. ESTR vs Euribor
+s = sl()
+title(s, "€STR and Euribor: the two floating rates in the trade",
+      "6m Euribor swap rate less €STR OIS rate, 1-year and 5-year, weekly since 2007")
+_xb1, _yb1 = weekly("basis_1y", "2007-01-01")
+_xb5, _yb5 = weekly("basis_5y", "2007-01-01")
+xy_chart(s, M, 1.55, 7.60, 4.30, [
+    {"name": "1-year", "x": _xb1, "y": _yb1, "colour": GOLD, "width": 1.75},
+    {"name": "5-year", "x": _xb5, "y": _yb5, "colour": NAVY, "width": 2.0},
+], xmin="2007-01-01", xmax=str(DATA_DATE), ymin=0)
+_x, _w = 8.55, 4.16
+note(s, _x, 1.55, _w, "€STR",
+     "The euro short-term rate: the overnight rate at which euro-area banks borrow unsecured, published by the ECB since "
+     "October 2019 as the successor to EONIA. The euro counterpart of SOFR as the near risk-free benchmark, and the rate "
+     "our financing is set over.", size=10.8, line_=RULE, fill=WHITE)
+note(s, _x, 3.22, _w, "6m Euribor",
+     "The rate at which euro-area banks lend to each other unsecured for six months. It carries a term and bank-credit "
+     "premium over €STR, so it sits above it, by more in a funding stress. It is the floating leg of the standard euro "
+     "swap, and so of ours.", size=10.8, line_=RULE, fill=WHITE)
+note(s, _x, 4.89, _w, "Why it helps the trade",
+     "We receive 6m Euribor on the swap and pay €STR + %dbp on the financing, so we are long the basis. It averaged %s at "
+     "1 year in 2008 to 2012 and is %s today." % (INP["Funding E+ (bps)"], bp(BASIS["1y"]["mean_2008_2012"]), bp(BASIS["1y"]["current"])),
+     size=10.8, fill=ICE_BG)
+tbox(s, M, 5.95, 7.60, 0.70, "The spread history in this deck is measured against the 6m Euribor swap, the curve the trade pays fixed on. "
+     "Measured against €STR every spread would sit lower by the basis shown here; the appendix shows both.", size=10.5, colour=GREY, line=1.14)
+footnote(s, "Source: Bloomberg EUSA (6m Euribor swaps) and EESWE (€STR OIS; EONIA less 8.5bp before October 2019, the ECB's recalibration). "
+            "Liminality calculations.")
 
 # ================================================================ 9. base case: the roll
 s = sl()
@@ -396,9 +614,11 @@ stat(s, _x, 1.62, _w, bp(CUR["frtr32"]), "the bond today, %.1f years to maturity
 stat(s, _x, 2.95, _w, bp(S3["spread_bp"], dp=1), "the 1-year point today, interpolated to the bond's maturity at expiry", vcolour=GOLD, h=1.18)
 stat(s, _x, 4.28, _w, bp(S3["spread_bp"] - CUR["frtr32"], sign=True), "spread tightening from the roll alone if the curve is unchanged, "
      "worth %s a year" % pc(S3["irr"] * 100, 0), vcolour=POS, h=1.18)
-tbox(s, _x, 5.62, _w, 0.80, "The 1-year point has never closed below %s since %s (%s). The 5-year point reached %s in the euro "
-     "crisis (%s)." % (bp(L1["min"]), PCT_YEAR, longdate(L1["min_date"]), bp(L5["min"]), longdate(L5["min_date"])),
-     size=10.5, colour=GREY, line=1.12)
+_five = ("The 5-year point is at its cheapest since %s today." % PCT_YEAR
+         if dt.date.fromisoformat(L5["min_date"]) == DATA_DATE else
+         "The 5-year point reached %s in the euro crisis (%s)." % (bp(L5["min"]), longdate(L5["min_date"])))
+tbox(s, _x, 5.62, _w, 0.80, "The 1-year point has never closed below %s since %s (%s). %s"
+     % (bp(L1["min"]), PCT_YEAR, longdate(L1["min_date"]), _five), size=10.5, colour=GREY, line=1.12)
 footnote(s, FOOT_CONSTRUCTION)
 
 # ================================================================ 10. scenario analysis
@@ -408,27 +628,37 @@ title(s, "Scenario analysis: %.0f-year IRR and multiple at expiry" % round(INP["
       "the scenario levels are the dashed lines" % PCT_YEAR)
 _x1, _y1 = weekly("fra_1y_%s" % B, SH["pct_start"])
 _cols = {"S1": POS, "S2": POS, "S3": GOLD, "S4": NAVY, "S5": VIOLET, "BE": GREY, "S6": NEG, "IMP": NEG}
+_order = [n["id"] for n in SC["named"]]              # richest first, as scenario_returns.py sorts them
 _series = [{"name": "1-year France spread", "x": _x1, "y": _y1, "colour": NAVY, "width": 1.75}]
-for _id in ("S1", "S2", "S3", "S4", "S5", "BE", "S6", "IMP"):
+for _id in _order:
     _n = NAMED[_id]
     _series.append(flat(_id, _n["spread_bp"], _cols[_id], SH["pct_start"], str(DATA_DATE)))
 xy_chart(s, M, 1.72, 5.90, 4.60, _series, legend=False, ymin=-650, ymax=150, xmin=SH["pct_start"], xmax=str(DATA_DATE), major_years=4)
 _rows = [["", "Scenario: 1-year spread at expiry", "Spread", "IRR", "MOIC"]]
-_short = {"S1": "Median since %s" % PCT_YEAR, "S2": "10th percentile since %s" % PCT_YEAR,
-          "S3": "Roll to spot: curve unchanged (within 1bp of the 1-year low since %s)" % PCT_YEAR,
-          "S4": "No roll: the bond's spread unchanged (within 8bp of the 5-year euro-crisis low)",
-          "S5": "Italy's 2011 crisis level: below this for only 29 trading days",
-          "BE": "Investment break-even", "S6": "Italy's 1-year point at its euro-crisis low, 9 Nov 2011",
+_gap1 = NAMED["S3"]["spread_bp"] - L1["min"]
+_s3 = "Roll to spot: curve unchanged (%s above the 1-year low since %s)" % (bp(_gap1), PCT_YEAR) if _gap1 > 1.5 \
+    else "Roll to spot: curve unchanged (within 1bp of the 1-year low since %s)" % PCT_YEAR
+_s4 = ("No roll: the bond's spread unchanged (the 5-year point's cheapest since %s)" % PCT_YEAR
+       if CUR["days_5y_below_frtr32"] == 0 else
+       "No roll: the bond's spread unchanged (within %s of the 5-year low since %s)" % (bp(abs(L5["min"] - CUR["frtr32"])), PCT_YEAR))
+_short = {"S1": "Median since %s" % PCT_YEAR, "S2": "10th percentile since %s" % PCT_YEAR, "S3": _s3, "S4": _s4,
+          # the S-numbers on the slide follow the table order, not the ids
+
+          "S5": "Italy's 2011 crisis level: below this for only %d trading days" % IT["1y"]["days_below_stress"],
+          "BE": "Investment break-even",
+          "S6": "Italy's 1-year point at its euro-crisis low, %s" % dt.date.fromisoformat(IT["1y"]["min_date"]).strftime("%#d %b %Y" if os.name == "nt" else "%-d %b %Y"),
           "IMP": "Full impairment at expiry"}
-for _id in ("S1", "S2", "S3", "S4", "S5", "BE", "S6", "IMP"):
+_k = 0
+for _id in _order:
     _n = NAMED[_id]
-    _rows.append([_id if not _id in ("BE", "IMP") else "", _short[_id], bp(_n["spread_bp"], dp=1 if abs(_n["spread_bp"]) < 10 and _n["spread_bp"] != 0 else 0),
-                  pc(_n["irr"] * 100, 1), "%.2fx" % _n["moic"] if _n["moic"] > 0 else "0"])
+    _k += _id not in ("BE", "IMP")
+    _rows.append(["", _short[_id], bp(_n["spread_bp"], dp=1 if _n["spread_bp"] != round(_n["spread_bp"]) else 0),
+                  pc(_n["irr"] * 100, 1) if _n["moic"] > 0 else "total loss", "%.2fx" % _n["moic"] if _n["moic"] > 0 else "0"])
 _tx, _tw = 6.80, 5.91
 _rowh, _headh = 0.40, 0.36
 _bot = table(s, _tx, 1.72, _tw, _rows, colw=[0.32, 3.49, 0.72, 0.70, 0.68], size=10.0, rowh=_rowh, headh=_headh,
              neutral=range(1, len(_rows)), aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT])
-for _i, _id in enumerate(("S1", "S2", "S3", "S4", "S5", "BE", "S6", "IMP")):
+for _i, _id in enumerate(_order):
     _cy = 1.72 + _headh + _rowh * _i + (_rowh - 0.14) / 2
     _d = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(_tx + 0.09), Inches(_cy), Inches(0.14), Inches(0.14))
     _d.fill.solid(); _d.fill.fore_color.rgb = _cols[_id]; _d.line.fill.background(); _d.shadow.inherit = False
@@ -460,9 +690,14 @@ xy_chart(s, M, 1.55, 8.30, 4.95, [
 ], xmin="2010-01-01", xmax="2013-12-31", major_years=1)
 _x, _w = 9.25, 3.46
 stat(s, _x, 1.55, _w, bp(IT["1y"]["min"]), "Italy's 1-year spread at its worst, %s" % longdate(IT["1y"]["min_date"]), vcolour=NEG, h=1.50)
-stat(s, _x, 3.20, _w, "29 days", "trading days Italy's 1-year spread spent below %s, 4 Nov to 14 Dec 2011; never since"
-     % bp(NAMED["S5"]["spread_bp"]), vcolour=VIOLET, h=1.50)
-stat(s, _x, 4.85, _w, bp(L5["min"]), "France's 5-year spread at its worst, %s; today %s" % (longdate(L5["min_date"]), bp(CUR["fra_5y"])), vcolour=NAVY, h=1.50)
+_sp = IT["1y"]["days_below_stress_span"]
+stat(s, _x, 3.20, _w, "%d days" % IT["1y"]["days_below_stress"], "trading days Italy's 1-year spread spent below %s, %s to %s; never since"
+     % (bp(IT["1y"]["stress_level_bp"]), longdate(_sp[0]), longdate(_sp[1])), vcolour=VIOLET, h=1.50)
+if dt.date.fromisoformat(L5["min_date"]) == DATA_DATE:
+    stat(s, _x, 4.85, _w, bp(CUR["fra_5y"]), "France's 5-year spread today, %s: its cheapest since %s, below anything in the euro crisis"
+         % (longdate(DATA_DATE), PCT_YEAR), vcolour=NAVY, h=1.50)
+else:
+    stat(s, _x, 4.85, _w, bp(L5["min"]), "France's 5-year spread at its worst, %s; today %s" % (longdate(L5["min_date"]), bp(CUR["fra_5y"])), vcolour=NAVY, h=1.50)
 footnote(s, "Italy's 1-year point is the relevant comparison for a bond that has rolled to one year: break-even needs it below %s at expiry. "
             "%s" % (bp(NAMED["BE"]["spread_bp"]), FOOT_CONSTRUCTION))
 

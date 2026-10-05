@@ -25,8 +25,10 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
   beside the numbers. Do not rebuild the IRR engine here unless asked.
 - The US belly deck in the draft is not an appendix; its slides are raw material to repurpose.
 - **Spread sign is swap minus bond**: a cheap OAT reads negative (decided 2026-10-05).
-- **Sovereign yields: Citi CMT from 2012, Bloomberg generics before 2011-09-22** (decision
-  0004). The OIS leg is Bloomberg EESWE throughout, which already embeds the 8.5bp splice.
+- **Sovereign yields: Bloomberg generic benchmarks throughout** (decision 0004, reversed
+  2026-10-05 evening after the CMT 1y read 6.6bp off the terminal on the quoted day). The 5y
+  generic is the trade's own bond. Citi CMT stays as the `*_cmt_bp` cross-check. The OIS leg is
+  Bloomberg EESWE throughout, which already embeds the 8.5bp splice.
 - **Percentile window starts 2010-01-01** (decision 0005): the whole euro sovereign crisis,
   not the 2007-09 money-market blow-out. The draft's 2012 window is kept for comparison only.
 - Still unconfirmed in `docs/decisions/0002-research-question.md`: the spreadsheet's inputs

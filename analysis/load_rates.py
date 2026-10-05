@@ -23,9 +23,10 @@ Citi (Velocity export):
 Spread sign convention (decision 0002, decided 2026-10-05): swap minus bond, so a cheap OAT
 reads negative.
 
-Sovereign yields (decision 0004, decided 2026-10-05): Citi CMT from 2011-09-22, Bloomberg
-generic benchmark before that. `load()` builds `fra_1y`, `fra_5y`, `ita_1y`, `ita_5y` that
-way and keeps both raw series alongside for the appendix cross-check.
+Sovereign yields (decision 0004, reversed 2026-10-05 evening): Bloomberg generic benchmark
+yields throughout. They are what the terminal shows, what Charlie's model used, and the 5y
+generic is the trade's own bond. The Citi CMT splice stays as the `*_cmt_bp` cross-check. On
+2026-10-02 the 1y CMT read 6.6bp below the generic bond, which turned a -1bp spread into +6bp.
 
 The 8.5bp EONIA splice of decision 0003 is applied in `estr_spliced()` and only used where a
 series does not already embed it. Bloomberg EESWE does; Citi's series do not.
@@ -109,12 +110,16 @@ CMT_START = pd.Timestamp("2011-09-22")   # first Citi CMT observation
 
 
 def sovereign(w, country, tenor):
-    """Decision 0004: Citi CMT from 2011-09-22, Bloomberg generic benchmark before. Percent."""
+    """Decision 0004 as reversed 2026-10-05: Bloomberg generic benchmark yield throughout. Percent."""
+    return w[f"bbg_{country}_{tenor}"]
+
+
+def sovereign_cmt_spliced(w, country, tenor):
+    """The construction decision 0004 first chose (Citi CMT from 2011-09-22, generics before), kept as a check."""
     citi = w[f"citi_{country}_{tenor}"]
     bbg = w[f"bbg_{country}_{tenor}"]
     out = citi.where(w.index >= CMT_START)
-    out = out.where(out.notna(), bbg.where(w.index < CMT_START))
-    return out
+    return out.where(out.notna(), bbg.where(w.index < CMT_START))
 
 
 def load(write=False):
@@ -132,8 +137,10 @@ def load(write=False):
             # Swap minus bond, bp. Negative = sovereign cheap to swaps.
             w[f"{c}_ois_{t}_bp"] = (w[f"ois_{t}"] - w[f"{c}_{t}"]) * 100
             w[f"{c}_eur6m_{t}_bp"] = (w[f"bbg_eur6m_{t}"] - w[f"{c}_{t}"]) * 100
-            # Bloomberg-generic construction kept for the appendix cross-check
-            w[f"{c}_ois_{t}_bbggeneric_bp"] = (w[f"ois_{t}"] - w[f"bbg_{c}_{t}"]) * 100
+            # the CMT-spliced construction kept for the appendix cross-check
+            cmt = sovereign_cmt_spliced(w, c, t)
+            w[f"{c}_ois_{t}_cmt_bp"] = (w[f"ois_{t}"] - cmt) * 100
+            w[f"{c}_eur6m_{t}_cmt_bp"] = (w[f"bbg_eur6m_{t}"] - cmt) * 100
         w[f"eur6m_ois_basis_{t}_bp"] = (w[f"bbg_eur6m_{t}"] - w[f"ois_{t}"]) * 100
     # The actual bond, on the deck's basis (swap minus bond). Its Bloomberg z-spread is bond
     # minus the 6m Euribor curve, so the sign flips and the basis moves it (inventory finding 7).
@@ -152,6 +159,6 @@ if __name__ == "__main__":
             "fra_eur6m_1y_bp", "fra_eur6m_5y_bp", "eur6m_ois_basis_1y_bp", "eur6m_ois_basis_5y_bp"]
     print("\nlast observations (bp, swap minus bond):")
     print(w[cols].dropna(how="all").iloc[-5:].round(1).to_string())
-    print("\naround the CMT join (2011-09-22), France 1y spread, decided vs Bloomberg-generic construction:")
-    j = w.loc["2011-09-15":"2011-09-29", ["fra_ois_1y_bp", "fra_ois_1y_bbggeneric_bp"]]
+    print("\nlast five days, France 1y vs 6m Euribor: decided (Bloomberg generic) vs the CMT cross-check:")
+    j = w[["fra_eur6m_1y_bp", "fra_eur6m_1y_cmt_bp"]].dropna().iloc[-5:]
     print(j.round(1).to_string())

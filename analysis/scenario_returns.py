@@ -68,9 +68,12 @@ def check_convention(grid):
 
 
 def interp(grid, x, key):
+    """Linear between grid points; below the full-impairment level the return is a total loss, not extrapolated."""
     xs = np.array([g["spread_bp"] for g in grid])
     ys = np.array([g[key] if g[key] is not None else np.nan for g in grid], dtype=float)
     o = np.argsort(xs)
+    if x < xs.min():
+        return 0.0 if key == "moic" else -1.0
     return float(np.interp(x, xs[o], ys[o]))
 
 
@@ -96,17 +99,35 @@ def build():
         return float(np.interp(level, lx, ly)) if lx[0] <= level <= lx[-1] else (0.0 if level < lx[0] else 100.0)
 
     on_grid = {g["spread_bp"] for g in grid}
+    italy = hist["by_basis"]["eur6m"]["italy"]["1y"]
     named = []
     for n in pts["named"]:
         s = float(n["spread_bp"])
+        n = dict(n)
         if n["id"] == "BE":
             s = next(g["spread_bp"] for g in grid if g["moic"] == 1.0)
         if n["id"] == "IMP":
             s = next(g["spread_bp"] for g in grid if g["moic"] == 0.0)
+        if n["id"] == "S1":      # median of the 1y ladder on the decided construction, rounded to the bp
+            s = float(round(lad["p50"]))
+            n["from"] = "1y ladder p50 (%.1f)" % lad["p50"]
+        if n["id"] == "S2":
+            s = float(round(lad["p10"]))
+            n["from"] = "1y ladder p10 (%.1f)" % lad["p10"]
+        if n["id"] == "S5":      # Italy's stress level: the day count comes from the history, not the JSON
+            s = float(italy["stress_level_bp"])
+            a, b = italy["days_below_stress_span"]
+            n["label"] = ("Italy's 2011 crisis level: the 1y point was below %dbp on only %d trading days, %s to %s"
+                          % (s, italy["days_below_stress"], a, b))
+        if n["id"] == "S6":      # Italy's euro-crisis low, read from the history on the decided construction
+            s = round(float(italy["min"]))
+            n["label"] = "Italy's 1y point at its euro-crisis low, %s" % italy["min_date"]
+            n["from"] = "Italy 1y min 2010-13 (%.1f, %s)" % (italy["min"], italy["min_date"])
         named.append({"id": n["id"], "label": n["label"], "spread_bp": s,
                       "irr": interp(grid, s, "irr"), "moic": interp(grid, s, "moic"),
                       "pct_since_2010": pct(s), "from": n["from"],
                       "return_source": "spreadsheet grid" if s in on_grid else "linear interpolation between grid points"})
+    named.sort(key=lambda n: -n["spread_bp"])      # richest first; the Italy low can sit below full impairment
     out = {"received": ASOF, "model_file": os.path.relpath(MODEL, os.path.join(HERE, "..")),
            "basis": "6m Euribor swap, swap minus bond, bp", "fee_basis": inputs.get("Gross of Fees", "Gross of Fees"),
            "irr_moic_convention": f"IRR = MOIC^(1/{T:.3f}) - 1 at every spreadsheet point (implied horizon {T:.3f}y; stated {inputs['Yrs Time to Expiry']:.3f}y)",

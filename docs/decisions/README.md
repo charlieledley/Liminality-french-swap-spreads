@@ -9,5 +9,5 @@ decided (date), or superseded by NNNN. Write the file when the decision is made,
 | 0001 | Repo layout and conventions | proposed 2026-10-04 |
 | 0002 | The investment, research question and conventions | proposed 2026-10-04, updated same day |
 | 0003 | Swap curve: scenario analysis on 6m Euribor (decided 2026-10-05 evening); €STR with EONIA less 8.5bp kept as the cross-check; both built | decided 2026-10-04, revised 2026-10-05 |
-| 0004 | Sovereign yield source: Citi CMT from 2012, Bloomberg generics before | decided 2026-10-05 |
+| 0004 | Sovereign yield source: Bloomberg generic benchmarks throughout (CMT splice reversed the same evening) | decided 2026-10-05, reversed 2026-10-05 |
 | 0005 | Percentile window starts 2010-01-01: the whole euro sovereign crisis, not 2007-09 | decided 2026-10-05 |

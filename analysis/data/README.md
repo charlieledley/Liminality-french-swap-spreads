@@ -25,6 +25,7 @@ and source agreement are in `docs/data-inventory-2026-10-05.md`.
 | `france_italy_yields_1y5y_bbg_2026-10-05.csv` | France and Italy generic 1y/5y benchmark yields from 2006 | Bloomberg |
 | `eur_ois_1y5y_citi_2026-10-05.csv` | 1y/5y €STR and EONIA par OIS (5y €STR unreliable before 2013) | Citi |
 | `france_italy_cmt_eur_swaps_1y5y_citi_2026-10-05.csv` | France and Italy 1y/5y CMT yields from 2011-09; EUR par swaps (1y is 3m basis, 5y is 6m basis) | Citi |
+| `oat_curve_vs_euribor6m_swaps_2026-10-02_bbg.csv` | One-day snapshot, 2026-10-02: France sovereign curve (I14) and EUR vs 6m Euribor swap curve (S45), 1y to 30y, with the spread; written by `analysis/curve_snapshot.py` | Bloomberg |
 | `frtr_3.25_feb2032_yield_zspread_bbg_2026-10-05.csv` | FRTR 3¼ 02/25/2032 mid yield (daily from 2026-05-15) and mid z-spread (from 2026-07-14), z-spread vs the 6m Euribor swap curve, bond minus swap sign | Bloomberg |
 
 The bond's z-spread is on the opposite sign and the Euribor curve. To put it on the deck's

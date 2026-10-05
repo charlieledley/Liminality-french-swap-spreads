@@ -1,7 +1,8 @@
 # 0004 · Which sovereign yield series the spreads are built on
 
 **Status:** decided 2026-10-05 (Charlie, in chat): Citi CMT yields from 2012, Bloomberg generics
-before 2011-09-22, as proposed below.
+before 2011-09-22, as proposed below. **Reversed the same evening (Charlie): Bloomberg generic
+benchmark yields throughout.** See the update at the end.
 
 ## The choice
 
@@ -46,3 +47,28 @@ on CMT and -115bp on the generic, so the difference is live today too.
 
 Which column `analysis/load_rates.py` maps to `fra_1y` and `fra_5y`, and the footnote on every
 spread chart.
+
+## Update 2026-10-05 (evening): reversed, Bloomberg generics throughout
+
+Charlie read the 1y spread on Friday 2026-10-02 as -1bp on the terminal and in the data he sent;
+the deck said +6bp. The difference was this decision: the Citi 1y CMT yield that day was 3.245%
+against 3.311% for the Bloomberg 1y generic OAT, a 6.6bp gap, the widest in weeks, against the
+same 1y Euribor swap at 3.304%. The two had been within 1 to 3bp for most of September.
+
+Decision: **Bloomberg generic benchmark yields throughout**, the alternative set out above.
+
+- They are what the terminal shows and what Charlie's IRR model used (its roll-to-spot level of
+  -1.3bp is consistent with the generic 1y, not the CMT).
+- The Bloomberg 5y generic is the trade's own bond: its spread equals the FRTR 32 spread to within
+  a fraction of a basis point, so the 5y point and the bond are one number (-83bp on 2026-10-02),
+  and the 5y point is at its cheapest since 2010 on this construction.
+- No construction join on 2011-09-22, so no 11bp step.
+- The maturity-drift argument for CMT is worth a few basis points; on 2026-10-02 the CMT fit
+  diverged by more than that on the day being quoted.
+
+What moves (since 2010, vs 6m Euribor, swap minus bond): 1y today -1bp (1st percentile), median
++28bp, low -8bp on 2024-11-08; 5y today -83bp (its low); Italy's 1y euro-crisis low -615bp on
+2011-11-09 rather than -556bp, which is below the model's full-impairment level of -572bp, so the
+"Italy's low" scenario row reads as a total loss; days Italy's 1y spent below -350bp: 28.
+
+The CMT splice stays in `load_rates.load()` as `*_cmt_bp` for the appendix cross-check.

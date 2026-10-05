@@ -6,7 +6,7 @@ twice, against EUR STR OIS and against the 6m Euribor swap, side by side. Charli
 MOIC spreadsheet is on the Euribor basis.
 
 Sign: swap minus bond (decision 0002). A cheap OAT reads negative.
-Sovereign yields: Citi CMT from 2011-09-22, Bloomberg generic before (decision 0004).
+Sovereign yields: Bloomberg generic benchmarks throughout (decision 0004, reversed 2026-10-05).
 OIS leg: Bloomberg EESWE, which embeds the 8.5bp EONIA splice (decision 0003).
 
 Outputs
@@ -37,6 +37,7 @@ PCT_START = "2010-01-01"       # decision 0005: the whole euro sovereign crisis,
 ALT_PCT_START = "2012-01-01"   # the draft deck's window, kept for comparison
 CHART_START = "2007-01-02"
 ITALY = ("2010-01-01", "2013-12-31")
+ITALY_STRESS_BP = -350            # the scenario row Charlie added: "below -350 only ~45 days in late 2011"
 PCTS = [1, 5, 10, 25, 50, 75, 90, 95, 99]
 BASES = {"ois": "vs €STR OIS (EONIA less 8.5bp before Oct 2019)",
          "eur6m": "vs 6m Euribor swap"}
@@ -75,12 +76,23 @@ def build():
             d["current"][f"fra_{t}_pct_since_{ALT_PCT_START[:4]}"] = pct_rank(s[ALT_PCT_START:], cur)
             d[f"ladder_{t}"] = {PCT_START[:4]: ladder(s, PCT_START), ALT_PCT_START[:4]: ladder(s, ALT_PCT_START)}
             it = w[f"ita_{b}_{t}_bp"][ITALY[0]:ITALY[1]].dropna()
+            below = it[it < ITALY_STRESS_BP]
             d["italy"][t] = {"min": float(it.min()), "min_date": str(it.idxmin().date()),
-                             "p5": float(np.percentile(it, 5)), "median": float(it.median())}
+                             "p5": float(np.percentile(it, 5)), "median": float(it.median()),
+                             "stress_level_bp": ITALY_STRESS_BP, "days_below_stress": int(len(below)),
+                             "days_below_stress_span": ([str(below.index.min().date()), str(below.index.max().date())]
+                                                        if len(below) else None)}
         bond = w[f"frtr32_{b}_bp"].dropna()
         d["current"]["frtr32"] = float(bond.iloc[-1])
         d["current"]["frtr32_date"] = str(bond.index[-1].date())
         d["current"]["frtr32_minus_fra_5y"] = float(bond.iloc[-1] - w[f"fra_{b}_5y_bp"].dropna().iloc[-1])
+        # how rare today's 5y level is: days since PCT_START (before today) the 5y spread sat strictly below
+        # today's 5y spread. On Bloomberg generics the 5y point is the bond itself, so this is the bond's rarity too.
+        s5 = w[f"fra_{b}_5y_bp"][PCT_START:].dropna()
+        below = s5.iloc[:-1][s5.iloc[:-1] < s5.iloc[-1]]
+        d["current"]["days_5y_below_frtr32"] = int(len(below))
+        d["current"]["days_5y_below_frtr32_span"] = ([str(below.index.min().date()), str(below.index.max().date())]
+                                                     if len(below) else None)
         out["by_basis"][b] = d
     # the basis itself, bp, yearly means and current
     basis = {}
@@ -90,10 +102,15 @@ def build():
                     "mean_2008_2012": float(s["2008":"2012"].mean()),
                     "yearly_mean": {int(y): float(v) for y, v in s.groupby(s.index.year).mean().items()}}
     out["basis_eur6m_minus_ois_bp"] = basis
-    # weekly series for charts (last business day of each week), both bases
+    # the levels on the data date, percent, for the what-is-a-swap-spread and arithmetic pages
+    lv = w.loc[last_date]
+    out["levels_pct"] = {k: float(lv[k]) for k in ("bbg_fra_1y", "bbg_eur6m_1y", "bbg_estr_1y",
+                                                  "bbg_fra_5y", "bbg_eur6m_5y", "bbg_estr_5y", "frtr32_yield")}
+    # weekly series for charts (last business day of each week), both bases, plus the basis itself
     cols = {f"fra_{b}_{t}_bp": f"fra_{t}_{b}" for b in BASES for t in ("1y", "5y")}
     cols.update({f"ita_{b}_{t}_bp": f"ita_{t}_{b}" for b in BASES for t in ("1y", "5y")})
     cols.update({f"frtr32_{b}_bp": f"frtr32_{b}" for b in BASES})
+    cols.update({f"eur6m_ois_basis_{t}_bp": f"basis_{t}" for t in ("1y", "5y")})
     wk = w[list(cols)].rename(columns=cols)[CHART_START:].resample("W-FRI").last()
     out["weekly"] = {"date": [str(x.date()) for x in wk.index],
                      **{c: [None if pd.isna(v) else round(float(v), 2) for v in wk[c]] for c in wk.columns}}
