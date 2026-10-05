@@ -1,0 +1,38 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# ── Secrets / credentials ──
+.env
+*.pem
+secrets.yaml
+
+# ── OS / editor / tooling (per machine) ──
+.DS_Store
+.claude/
+.obsidian/
+.trash/
+
+# ── Regenerable outputs ──
+# Formatted .xlsx deliverables go to exports/ (Office rewrites metadata on every open,
+# so committed workbooks churn forever).
+exports/
+# Script caches and run logs regenerate from the scripts.
+analysis/_cache/
+analysis/*.out
+analysis/*.log
+analysis/*.bak
+*.parquet
+
+# ── Tracked despite being data ──
+# analysis/data/ holds hand-supplied Bloomberg pulls. They are metered and cost a terminal
+# session to rebuild, so they are tracked (CSV with a `source` column).
+!analysis/data/
+!analysis/data/**

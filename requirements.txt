@@ -1,0 +1,15 @@
+# Core packages for analysis/ scripts. Recreate the environment with:
+#   python -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#   .venv\Scripts\python.exe -m pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi
+pandas
+numpy
+scipy
+statsmodels
+matplotlib
+openpyxl
+pyarrow
+pytest
+python-pptx
+Pillow
+pypdfium2
