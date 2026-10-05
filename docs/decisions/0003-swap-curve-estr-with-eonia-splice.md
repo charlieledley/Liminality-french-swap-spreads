@@ -40,6 +40,26 @@ and only to observations dated before 2019-10-02. Where both EONIA and €STR OI
 same date (October 2019 to January 2022), €STR is used and EONIA is kept only as a check that
 the difference is 8.5bp.
 
+## Update 2026-10-05 (later): both bases built in parallel for now
+
+Charlie's IRR and MOIC spreadsheet is built on the 6m Euribor swap, the curve the trade
+actually uses, and the choice of basis for the deck's history is not settled. Decision: build
+every spread history, percentile ladder and chart **on both bases**, €STR OIS and 6m Euribor,
+side by side, until the deck's basis is chosen. `analysis/spread_history.py` produces both;
+the workbook and the deck data carry both; nothing is quoted from one without the other being
+available. The €STR footnote wording above applies if the €STR basis is chosen; if Euribor is
+chosen, the footnote instead names the 6m Euribor swap and that the financing leg is €STR.
+
+## Update 2026-10-05: Bloomberg has already done the splice
+
+Bloomberg's €STR OIS tickers (EESWE1, EESWE5) run from 2007-01-02 and equal the EONIA OIS
+tickers (EUSWE1, EUSWE5) less 8.50bp on every day of 2007 to 2021, with a 0.12bp standard
+deviation (`docs/data-inventory-2026-10-05.md`, finding 1). That is option A exactly.
+`analysis/load_rates.py` therefore uses EESWE as the OIS leg for the whole history and applies
+no further shift. The `estr_spliced()` function stays for any series that does not embed it
+(Citi's do not). The slide footnote wording above is unchanged, because it describes what the
+series is, whichever party did the arithmetic.
+
 ## What this changes
 
 - Decision 0002's "swap curve" row: €STR (EONIA before 2019-10-02), 6m Euribor as a later layer.

@@ -14,15 +14,23 @@ a new file with a new date.
 - The raw file as received (xlsx, csv, clipboard paste) is kept beside the tidy CSV under
   `raw/`, unchanged, so the tidy file can be audited.
 
-## Expected files for the swap-spread history (decision 0003)
+## Files for the swap-spread history (decision 0003), received 2026-10-05
 
-| File | Content | Status |
+Written by `analysis/load_rates.py` from the four workbooks in `raw/`. Findings on coverage
+and source agreement are in `docs/data-inventory-2026-10-05.md`.
+
+| File | Content | Source |
 |---|---|---|
-| `oat_yields_*.csv` | OAT yields at the 1y and ~5y points, or FRTR 3¼ 02/25/32 yield and z-spread | awaited from Charlie |
-| `estr_ois_*.csv` | €STR OIS swap rates, 1y and 5y, from 2019-10-02 | awaited |
-| `eonia_ois_*.csv` | EONIA OIS swap rates, 1y and 5y, before 2019-10-02 | awaited |
-| `euribor6m_swap_*.csv` | 6m Euribor swap rates, 1y and 5y (the trade's actual curve, layered in later) | awaited |
-| `btp_*.csv` | Italian BTP yields and matching OIS, 2010-2013, for the stress analogue | awaited |
+| `eur_swaps_1y5y_bbg_2026-10-05.csv` | 1y/5y swap vs 6m Euribor, EONIA OIS, €STR OIS (€STR back-filled as EONIA less 8.5bp before 2019-10-02) | Bloomberg |
+| `france_italy_yields_1y5y_bbg_2026-10-05.csv` | France and Italy generic 1y/5y benchmark yields from 2006 | Bloomberg |
+| `eur_ois_1y5y_citi_2026-10-05.csv` | 1y/5y €STR and EONIA par OIS (5y €STR unreliable before 2013) | Citi |
+| `france_italy_cmt_eur_swaps_1y5y_citi_2026-10-05.csv` | France and Italy 1y/5y CMT yields from 2011-09; EUR par swaps (1y is 3m basis, 5y is 6m basis) | Citi |
+| `frtr_3.25_feb2032_yield_zspread_bbg_2026-10-05.csv` | FRTR 3¼ 02/25/2032 mid yield (daily from 2026-05-15) and mid z-spread (from 2026-07-14), z-spread vs the 6m Euribor swap curve, bond minus swap sign | Bloomberg |
+
+The bond's z-spread is on the opposite sign and the Euribor curve. To put it on the deck's
+basis (swap minus bond, €STR OIS) negate it and subtract the 6m Euribor / €STR basis at 5y,
+or use bond yield minus `ois_5y` directly; `load_rates.load()` does the latter as
+`frtr32_ois_bp` and keeps `frtr32_eur6m_bp` beside it.
 
 The scenario IRRs and MOICs come from Charlie's spreadsheet, not from this folder. Its output
 lands in `deck/data/scenario_irr_moic_<date>.json` (or the workbook itself under `analysis/`

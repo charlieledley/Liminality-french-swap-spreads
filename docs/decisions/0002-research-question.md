@@ -21,10 +21,10 @@ since 2012 (and Italy in 2011-12 as the stress analogue) locate those levels?
 
 | Item | Draft's implicit choice | Alternative | Status |
 |---|---|---|---|
-| Spread sign | swap minus bond: negative when OATs are cheap to swaps (5.4y at -78bp) | bond minus swap, positive when cheap | open |
+| Spread sign | swap minus bond: negative when OATs are cheap to swaps (5.4y at -78bp) | bond minus swap, positive when cheap | **decided 2026-10-05** |
 | Swap curve | €STR OIS for the history, EONIA before 2019-10-02; the trade's actual 6m Euribor swap layered in later and footnoted (decision 0003) | 6m Euribor throughout | **decided 2026-10-04** |
-| Bond | FRTR 3¼ 02/25/32 | another OAT near 5y | open |
-| History window | from 2012 ("last 14y", percentiles "since 2012") | from 2007 or 2010 | open |
+| Bond | FRTR 3¼ 02/25/32 | another OAT near 5y | in use; Charlie supplied its history 2026-10-05 |
+| History window | from 2012 ("last 14y", percentiles "since 2012") on Citi CMT yields; Bloomberg generics for anything earlier (decision 0004) | from 2007 or 2010 | yields decided 2026-10-05; start date still to confirm |
 | Financing | €STR + 17bp for 4 years, TRS | term sheet to confirm | open |
 | Floor strike | not stated in the French draft (the US deck used 45bp out of the money) | | **missing** |
 | Leverage / notional per unit of capital | not stated (US deck: 50-60x) | | **missing** |

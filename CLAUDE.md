@@ -22,8 +22,12 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
   output from `deck/data/` and states the model's inputs (floor, leverage, rate level, fee basis)
   beside the numbers. Do not rebuild the IRR engine here unless asked.
 - The US belly deck in the draft is not an appendix; its slides are raw material to repurpose.
-- Still unconfirmed in `docs/decisions/0002-research-question.md`: spread sign and the
-  spreadsheet's inputs. Do not build a figure on an unconfirmed one without saying so.
+- **Spread sign is swap minus bond**: a cheap OAT reads negative (decided 2026-10-05).
+- **Sovereign yields: Citi CMT from 2012, Bloomberg generics before 2011-09-22** (decision
+  0004). The OIS leg is Bloomberg EESWE throughout, which already embeds the 8.5bp splice.
+- Still unconfirmed in `docs/decisions/0002-research-question.md`: the history start date for
+  percentiles (draft says 2012) and the spreadsheet's inputs. Do not build a figure on an
+  unconfirmed one without saying so.
 
 - `analysis/` holds every script behind a quoted number. `analysis/data/` holds hand-supplied
   Bloomberg pulls (tracked, metered, with a `source` column). `analysis/_cache/` is ignored.
