@@ -14,10 +14,12 @@ house format of the put-writing deck, built by script from analysis in this repo
 of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house format is
 `docs/deck-plan-2026-10-04.md`.
 
-- **Historical spreads are OAT vs €STR OIS, with EONIA OIS less 8.5bp spliced in before
-  2019-10-02** (decision 0003; the shift is on the swap rate, pre-2019 dates only). The trade's
-  own 6m Euribor swap is a later layer. Both substitutions are footnoted on every slide that
-  uses the series.
+- **The scenario analysis is on the 6m Euribor swap basis** (decision 0003, revised
+  2026-10-05 evening), matching the trade and Charlie's IRR/MOIC spreadsheet. Working assumption:
+  every spread chart in the deck is on the same basis, footnoted with the €STR financing leg and
+  the current Euribor/€STR basis. The €STR OIS construction (Bloomberg EESWE, which embeds the
+  8.5bp EONIA splice) is kept in `analysis/` and the workbook as the cross-check. Both bases are
+  built by `analysis/spread_history.py`; `PRIMARY_BASIS` names the one the deck reads.
 - **IRR and MOIC come from Charlie's spreadsheet**, not from this repo. The deck reads the uploaded
   output from `deck/data/` and states the model's inputs (floor, leverage, rate level, fee basis)
   beside the numbers. Do not rebuild the IRR engine here unless asked.
@@ -25,9 +27,11 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
 - **Spread sign is swap minus bond**: a cheap OAT reads negative (decided 2026-10-05).
 - **Sovereign yields: Citi CMT from 2012, Bloomberg generics before 2011-09-22** (decision
   0004). The OIS leg is Bloomberg EESWE throughout, which already embeds the 8.5bp splice.
-- Still unconfirmed in `docs/decisions/0002-research-question.md`: the history start date for
-  percentiles (draft says 2012) and the spreadsheet's inputs. Do not build a figure on an
-  unconfirmed one without saying so.
+- **Percentile window starts 2010-01-01** (decision 0005): the whole euro sovereign crisis,
+  not the 2007-09 money-market blow-out. The draft's 2012 window is kept for comparison only.
+- Still unconfirmed in `docs/decisions/0002-research-question.md`: the spreadsheet's inputs
+  (floor, leverage, rate level, fee basis). Do not build a figure on an unconfirmed one without
+  saying so.
 
 - `analysis/` holds every script behind a quoted number. `analysis/data/` holds hand-supplied
   Bloomberg pulls (tracked, metered, with a `source` column). `analysis/_cache/` is ignored.

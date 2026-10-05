@@ -24,11 +24,14 @@ since 2012 (and Italy in 2011-12 as the stress analogue) locate those levels?
 | Spread sign | swap minus bond: negative when OATs are cheap to swaps (5.4y at -78bp) | bond minus swap, positive when cheap | **decided 2026-10-05** |
 | Swap curve | €STR OIS for the history, EONIA before 2019-10-02; the trade's actual 6m Euribor swap layered in later and footnoted (decision 0003) | 6m Euribor throughout | **decided 2026-10-04** |
 | Bond | FRTR 3¼ 02/25/32 | another OAT near 5y | in use; Charlie supplied its history 2026-10-05 |
-| History window | from 2012 ("last 14y", percentiles "since 2012") on Citi CMT yields; Bloomberg generics for anything earlier (decision 0004) | from 2007 or 2010 | yields decided 2026-10-05; start date still to confirm |
-| Financing | €STR + 17bp for 4 years, TRS | term sheet to confirm | open |
-| Floor strike | not stated in the French draft (the US deck used 45bp out of the money) | | **missing** |
-| Leverage / notional per unit of capital | not stated (US deck: 50-60x) | | **missing** |
-| Rate level for the scenario | not stated | | **missing** |
+| History window | percentiles from 2010-01-01 (decision 0005); Citi CMT yields from 2011-09-22, Bloomberg generics before (decision 0004) | 2012 (the draft) or 2007 | **decided 2026-10-05** |
+| Financing | €STR + 17bp, to option expiry 2031-02-25 (4.40y from trade date 2026-10-02) | | **from the model, 2026-10-05** |
+| Floor strike | -30bp from the at-the-money forward spread | | **from the model, 2026-10-05** |
+| Leverage / capital | 1.1m of capital, including the option premium, per 100m of bond notional (about 91x) | | **from the model, 2026-10-05** |
+| Entry spread | -82.9bp (bond vs 6m Euribor, swap minus bond, 2026-10-02) | | **from the model, 2026-10-05** |
+| Fee basis | gross of fees | net | **from the model, 2026-10-05** |
+| Roll-to-spot level | 1y spread of -1.3bp, interpolated to the bond's maturity at expiry (Charlie), not the +6bp 1y CMT point | | **decided 2026-10-05** |
+| Rate level for the scenario | not stated in the model output; the IRR depends on spread only through the grid | | not needed on the slide unless Charlie wants it |
 
 ## Why this needs to be written down
 
@@ -48,3 +51,12 @@ reads the inputs above, so the inputs have to be decided first.
 - The US belly deck is **not** kept in the appendix. Several of its slides are repurposed
   (what is a swap spread, what is the trade, the TRS diagram, why the dislocation, risks).
 - Historical data will arrive from several sources uploaded by Charlie, not a single pull.
+
+## Update 2026-10-05 (evening): the scenario output arrived
+
+`analysis/model/french_ss_details_and_returns_2026-10-05.xlsx` holds IRR and MOIC at the
+nineteen grid points of `docs/scenario-points-2026-10-05.md` plus the two solves: break-even
+at -445bp, full impairment at -572bp. The model inputs are in the table above. The IRR and
+MOIC are consistent with a single horizon of 4.420 years (IRR = MOIC^(1/4.420) - 1 at every
+point); the stated trade-date-to-expiry horizon is 4.403 years, so the IRR convention is the
+spreadsheet's and is stated as such. `analysis/scenario_returns.py` ingests the file.

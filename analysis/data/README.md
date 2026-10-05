@@ -33,5 +33,6 @@ or use bond yield minus `ois_5y` directly; `load_rates.load()` does the latter a
 `frtr32_ois_bp` and keeps `frtr32_eur6m_bp` beside it.
 
 The scenario IRRs and MOICs come from Charlie's spreadsheet, not from this folder. Its output
-lands in `deck/data/scenario_irr_moic_<date>.json` (or the workbook itself under `analysis/`
-if the model is shared), with the model's inputs recorded beside the numbers.
+workbook is kept unchanged in `analysis/model/` and ingested by `analysis/scenario_returns.py`
+into `deck/data/scenario_irr_moic_<date>.json`, with the model's inputs recorded beside the
+numbers.

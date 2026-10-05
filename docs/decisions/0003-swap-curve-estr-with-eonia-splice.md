@@ -40,6 +40,22 @@ and only to observations dated before 2019-10-02. Where both EONIA and €STR OI
 same date (October 2019 to January 2022), €STR is used and EONIA is kept only as a check that
 the difference is 8.5bp.
 
+## Update 2026-10-05 (evening): the scenario analysis is on 6m Euribor
+
+**Decided (Charlie, in chat):** the scenario analysis, meaning the IRR and MOIC table and the
+1-year percentile ladder its at-expiry spread levels are read against, uses the **6m Euribor
+swap** basis, the curve the trade and the spreadsheet are on. On that basis the 1y spread today
+is +6bp, its median since 2012 is +28bp, and the 5y point is -71bp (`spread_history.py`,
+data to 2026-10-02).
+
+Consequence for the rest of the deck, stated as Claude's working assumption until Charlie says
+otherwise: every spread chart in the deck goes on the same Euribor basis, so one number means
+one thing throughout, and the footnote says the financing leg is €STR and names the current
+Euribor / €STR basis (41bp at 1y, 32bp at 5y). The €STR construction stays in the analysis
+and the workbook as the cross-check, and can go in the appendix if wanted. The original
+reasoning for €STR (easier to follow because the financing leg is €STR) is answered on the
+"what is the trade" slide rather than in the history charts.
+
 ## Update 2026-10-05 (later): both bases built in parallel for now
 
 Charlie's IRR and MOIC spreadsheet is built on the 6m Euribor swap, the curve the trade

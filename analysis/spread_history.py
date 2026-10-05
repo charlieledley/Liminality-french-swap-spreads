@@ -14,7 +14,9 @@ Outputs
   exports/spread_history_both_bases_<date>.xlsx   the same, formatted, for Charlie to audit
 
 Windows
-  PCT_START  the percentile window the draft deck uses ("since 2012"); still to be confirmed
+  PCT_START  the percentile window: 2010-01-01, the whole euro sovereign crisis without the
+             2007-09 money-market blow-out (decision 0005, Charlie 2026-10-05)
+  ALT_PCT_START  2012, the draft deck's window, kept for comparison
   CHART_START  where the history charts begin; 2007 is where the OIS history begins
 """
 import json
@@ -31,13 +33,14 @@ import load_rates                                    # noqa: E402
 from xlsx_report import Block, write_report          # noqa: E402
 
 ASOF = "2026-10-05"
-PCT_START = "2012-01-01"
-ALT_PCT_START = "2007-01-02"
+PCT_START = "2010-01-01"       # decision 0005: the whole euro sovereign crisis, without 2007-09
+ALT_PCT_START = "2012-01-01"   # the draft deck's window, kept for comparison
 CHART_START = "2007-01-02"
 ITALY = ("2010-01-01", "2013-12-31")
 PCTS = [1, 5, 10, 25, 50, 75, 90, 95, 99]
 BASES = {"ois": "vs €STR OIS (EONIA less 8.5bp before Oct 2019)",
          "eur6m": "vs 6m Euribor swap"}
+PRIMARY_BASIS = "eur6m"   # decision 0003, revised 2026-10-05: the scenario analysis is on 6m Euribor
 
 
 def pct_rank(series, value):
@@ -60,7 +63,8 @@ def build():
     w = load_rates.load()
     last_date = w["fra_ois_1y_bp"].dropna().index[-1]
     out = {"asof_data": str(last_date.date()), "received": ASOF, "sign": "swap minus bond, bp",
-           "pct_start": PCT_START, "alt_pct_start": ALT_PCT_START, "bases": BASES, "by_basis": {}}
+           "pct_start": PCT_START, "alt_pct_start": ALT_PCT_START, "bases": BASES,
+           "primary_basis": PRIMARY_BASIS, "by_basis": {}}
     for b, label in BASES.items():
         d = {"label": label, "current": {}, "ladder_1y": {}, "ladder_5y": {}, "italy": {}}
         for t in ("1y", "5y"):

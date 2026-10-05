@@ -1,0 +1,240 @@
+{
+ "received": "2026-10-05",
+ "model_file": "analysis\\model\\french_ss_details_and_returns_2026-10-05.xlsx",
+ "basis": "6m Euribor swap, swap minus bond, bp",
+ "fee_basis": null,
+ "irr_moic_convention": "IRR = MOIC^(1/4.420) - 1 at every spreadsheet point (implied horizon 4.420y; stated 4.403y)",
+ "model_inputs": {
+  "Trade Date": "2026-10-02",
+  "Opt Expiry": "2031-02-25",
+  "Yrs Time to Expiry": 4.402739726027397,
+  "Funding E+ (bps)": 17,
+  "Bond Underlier": "FRTR 3 1/4 02/25/32",
+  "Bond Cusip": "DK7998596 Cusip",
+  "Bond Maturity": "2032-02-25",
+  "TradeDate": "2026-10-02",
+  "SettlementDate": "2026-10-05",
+  "Starting Bond Expiry": 5.402739726027397,
+  "Ending Bond Expiry": 1,
+  "Entry spread": -82.9,
+  "Floor strike (from ATMF)": -30,
+  "Gross of Fees": null,
+  "1.1 million of capital (including option premium) per 100m of bond notional": null
+ },
+ "roll_to_spot_bp": -1.3,
+ "grid": [
+  {
+   "spread_bp": 64.0,
+   "irr": 0.4599,
+   "moic": 5.324859337689286,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 40.0,
+   "irr": 0.4466,
+   "moic": 5.113758290175729,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 30.0,
+   "irr": 0.441,
+   "moic": 5.026836909203324,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 20.0,
+   "irr": 0.4353,
+   "moic": 4.939541824150449,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 12.0,
+   "irr": 0.4307,
+   "moic": 4.8699523402800065,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 6.0,
+   "irr": 0.4272,
+   "moic": 4.81751393638459,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": 0.0,
+   "irr": 0.4236,
+   "moic": 4.764034179331927,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -25.0,
+   "irr": 0.4087,
+   "moic": 4.54755368312548,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -50.0,
+   "irr": 0.3933,
+   "moic": 4.331888763243139,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -75.0,
+   "irr": 0.3774,
+   "moic": 4.117613201423065,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -91.0,
+   "irr": 0.3669,
+   "moic": 3.9806721128724645,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -100.0,
+   "irr": 0.3608,
+   "moic": 3.902750685421376,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -150.0,
+   "irr": 0.3258,
+   "moic": 3.4781861778539693,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -200.0,
+   "irr": 0.2877,
+   "moic": 3.0576020083287325,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -300.0,
+   "irr": 0.1988,
+   "moic": 2.2287459422514635,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -400.0,
+   "irr": 0.0817,
+   "moic": 1.414986144580207,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -445.0,
+   "irr": 0.0,
+   "moic": 1.0,
+   "irr_source": "spreadsheet"
+  },
+  {
+   "spread_bp": -500.0,
+   "irr": -0.10914304442957856,
+   "moic": 0.6,
+   "irr_source": "derived: MOIC^(1/T)-1, same convention as the spreadsheet"
+  },
+  {
+   "spread_bp": -556.0,
+   "irr": -0.4060421095427731,
+   "moic": 0.1,
+   "irr_source": "derived: MOIC^(1/T)-1, same convention as the spreadsheet"
+  },
+  {
+   "spread_bp": -572.0,
+   "irr": -1.0,
+   "moic": 0.0,
+   "irr_source": "derived: MOIC^(1/T)-1, same convention as the spreadsheet"
+  }
+ ],
+ "named": [
+  {
+   "id": "S1",
+   "label": "90th percentile since 2010",
+   "spread_bp": 64,
+   "irr": 0.4599,
+   "moic": 5.324859337689286,
+   "pct_since_2010": 89.87910725356478,
+   "from": "1y ladder p90 (64.1)"
+  },
+  {
+   "id": "S2",
+   "label": "Median since 2010",
+   "spread_bp": 30,
+   "irr": 0.441,
+   "moic": 5.026836909203324,
+   "pct_since_2010": 50.436144893993315,
+   "from": "1y ladder p50 (29.7)"
+  },
+  {
+   "id": "S3",
+   "label": "10th percentile since 2010",
+   "spread_bp": 12,
+   "irr": 0.4307,
+   "moic": 4.8699523402800065,
+   "pct_since_2010": 9.890133470666488,
+   "from": "1y ladder p10 (12.1)"
+  },
+  {
+   "id": "S4",
+   "label": "Roll to spot (bond rolls to a 1y spread of -1.3bp)",
+   "spread_bp": -1.3,
+   "irr": 0.42282519999999996,
+   "moic": 4.752777193529192,
+   "pct_since_2010": 0.16042941105913686,
+   "from": "interpolated to the bond's maturity at expiry (Charlie)"
+  },
+  {
+   "id": "S5",
+   "label": "Cheapest 1y since 2010",
+   "spread_bp": -2,
+   "irr": 0.422408,
+   "moic": 4.746715739635411,
+   "pct_since_2010": 0.010495382031908538,
+   "from": "1y ladder min (-2.0, 2025-01-03)"
+  },
+  {
+   "id": "S6",
+   "label": "No roll (bond spread unchanged)",
+   "spread_bp": -83,
+   "irr": 0.37215,
+   "moic": 4.049142657147765,
+   "pct_since_2010": 0.0,
+   "from": "FRTR 3.25 02/25/32 today (-82.5)"
+  },
+  {
+   "id": "S7",
+   "label": "5y point at its euro-crisis low",
+   "spread_bp": -91,
+   "irr": 0.3669,
+   "moic": 3.9806721128724645,
+   "pct_since_2010": 0.0,
+   "from": "5y ladder since 2010 min (-90.8, 2011-11-16)"
+  },
+  {
+   "id": "S8",
+   "label": "Italy, November 2011, 1y point",
+   "spread_bp": -556,
+   "irr": -0.4060421095427731,
+   "moic": 0.1,
+   "pct_since_2010": 0.0,
+   "from": "Italy 1y min 2010-13 (-556.1, 2011-11-09)"
+  },
+  {
+   "id": "BE",
+   "label": "Investment break-even",
+   "spread_bp": -445.0,
+   "irr": 0.0,
+   "moic": 1.0,
+   "pct_since_2010": 0.0,
+   "from": "solve: 4y IRR = 0"
+  },
+  {
+   "id": "IMP",
+   "label": "Full impairment at expiry",
+   "spread_bp": -572.0,
+   "irr": -1.0,
+   "moic": 0.0,
+   "pct_since_2010": 0.0,
+   "from": "solve: floor reached"
+  }
+ ],
+ "percentile_window_start": "2010-01-01"
+}
