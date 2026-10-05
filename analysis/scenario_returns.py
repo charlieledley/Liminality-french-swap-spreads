@@ -128,12 +128,24 @@ def build():
                       "pct_since_2010": pct(s), "from": n["from"],
                       "return_source": "spreadsheet grid" if s in on_grid else "linear interpolation between grid points"})
     named.sort(key=lambda n: -n["spread_bp"])      # richest first; the Italy low can sit below full impairment
+    # the executive-summary claim: how often Italy and Spain breached break-even, on the deck's basis
+    be = next(n["spread_bp"] for n in named if n["id"] == "BE")
+    sys.path.insert(0, HERE)
+    import load_rates
+    w = load_rates.load()
+    breach = {}
+    for c in ("ita", "esp"):
+        s = w[f"{c}_eur6m_1y_bp"].dropna()
+        bl = s[s < be]
+        breach[c] = {"first": str(s.index[0].date()), "last": str(s.index[-1].date()), "min": float(s.min()),
+                     "min_date": str(s.idxmin().date()), "days_below_breakeven": int(len(bl)),
+                     "span": ([str(bl.index.min().date()), str(bl.index.max().date())] if len(bl) else None)}
     out = {"received": ASOF, "model_file": os.path.relpath(MODEL, os.path.join(HERE, "..")),
            "basis": "6m Euribor swap, swap minus bond, bp", "fee_basis": inputs.get("Gross of Fees", "Gross of Fees"),
            "irr_moic_convention": f"IRR = MOIC^(1/{T:.3f}) - 1 at every spreadsheet point (implied horizon {T:.3f}y; stated {inputs['Yrs Time to Expiry']:.3f}y)",
            "model_inputs": inputs, "roll_to_spot_bp": ROLL_TO_SPOT_BP,
            "grid": sorted(grid, key=lambda g: -g["spread_bp"]), "named": named,
-           "percentile_window_start": hist["pct_start"]}
+           "percentile_window_start": hist["pct_start"], "breakeven_breaches_1y": breach}
     return out
 
 

@@ -226,5 +226,26 @@
    "return_source": "linear interpolation between grid points"
   }
  ],
- "percentile_window_start": "2010-01-01"
+ "percentile_window_start": "2010-01-01",
+ "breakeven_breaches_1y": {
+  "ita": {
+   "first": "2006-10-05",
+   "last": "2026-10-02",
+   "min": -614.9499999999999,
+   "min_date": "2011-11-09",
+   "days_below_breakeven": 5,
+   "span": [
+    "2011-11-08",
+    "2011-11-29"
+   ]
+  },
+  "esp": {
+   "first": "2011-10-06",
+   "last": "2026-10-02",
+   "min": -427.59999999999997,
+   "min_date": "2012-07-25",
+   "days_below_breakeven": 0,
+   "span": null
+  }
+ }
 }

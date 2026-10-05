@@ -28,6 +28,10 @@ and source agreement are in `docs/data-inventory-2026-10-05.md`.
 | `oat_curve_vs_euribor6m_swaps_2026-10-02_bbg.csv` | One-day snapshot, 2026-10-02: France sovereign curve (I14) and EUR vs 6m Euribor swap curve (S45), 1y to 30y, with the spread; written by `analysis/curve_snapshot.py` | Bloomberg |
 | `frtr_3.25_feb2032_yield_zspread_bbg_2026-10-05.csv` | FRTR 3¼ 02/25/2032 mid yield (daily from 2026-05-15) and mid z-spread (from 2026-07-14), z-spread vs the 6m Euribor swap curve, bond minus swap sign | Bloomberg |
 
+| `spain_1y_bbg_2026-10-05.csv` | Spain generic 1y benchmark yield (Bloomberg id YI278613), daily from 2011-10-06; the EUSA1 and spread columns in the export are dropped after a 0.01bp check against the repo's own | Bloomberg |
+
+| `hedge_pair_2026-10-02.csv` | FRTR 0½ 05/25/2040 and FRTR 4½ 04/25/2041: price and mid yield on 2026-10-02, transcribed from Charlie's Bloomberg screenshot (`raw/hedge_pair_..._screen_2026-10-02.png`); durations computed in `analysis/hedge_pair.py` | Bloomberg screen, transcribed |
+
 The bond's z-spread is on the opposite sign and the Euribor curve. To put it on the deck's
 basis (swap minus bond, €STR OIS) negate it and subtract the 6m Euribor / €STR basis at 5y,
 or use bond yield minus `ois_5y` directly; `load_rates.load()` does the latter as

@@ -82,6 +82,18 @@ def build():
                              "stress_level_bp": ITALY_STRESS_BP, "days_below_stress": int(len(below)),
                              "days_below_stress_span": ([str(below.index.min().date()), str(below.index.max().date())]
                                                         if len(below) else None)}
+        # France's own 1y and 5y lows inside the euro-crisis window, for the stress-analogue page
+        d["france_crisis"] = {}
+        for t in ("1y", "5y"):
+            fc = w[f"fra_{b}_{t}_bp"][ITALY[0]:ITALY[1]].dropna()
+            d["france_crisis"][t] = {"min": float(fc.min()), "min_date": str(fc.idxmin().date())}
+        # Spain 1y, whole available history (from 2011-10-06), for the executive-summary claim
+        sp = w[f"esp_{b}_1y_bp"].dropna()
+        spb = sp[sp < ITALY_STRESS_BP]
+        d["spain"] = {"1y": {"first": str(sp.index[0].date()), "last": str(sp.index[-1].date()), "n": int(len(sp)),
+                             "min": float(sp.min()), "min_date": str(sp.idxmin().date()),
+                             "stress_level_bp": ITALY_STRESS_BP, "days_below_stress": int(len(spb)),
+                             "days_below_stress_span": ([str(spb.index.min().date()), str(spb.index.max().date())] if len(spb) else None)}}
         bond = w[f"frtr32_{b}_bp"].dropna()
         d["current"]["frtr32"] = float(bond.iloc[-1])
         d["current"]["frtr32_date"] = str(bond.index[-1].date())
@@ -110,6 +122,7 @@ def build():
     cols = {f"fra_{b}_{t}_bp": f"fra_{t}_{b}" for b in BASES for t in ("1y", "5y")}
     cols.update({f"ita_{b}_{t}_bp": f"ita_{t}_{b}" for b in BASES for t in ("1y", "5y")})
     cols.update({f"frtr32_{b}_bp": f"frtr32_{b}" for b in BASES})
+    cols.update({f"esp_{b}_1y_bp": f"esp_1y_{b}" for b in BASES})
     cols.update({f"eur6m_ois_basis_{t}_bp": f"basis_{t}" for t in ("1y", "5y")})
     wk = w[list(cols)].rename(columns=cols)[CHART_START:].resample("W-FRI").last()
     out["weekly"] = {"date": [str(x.date()) for x in wk.index],

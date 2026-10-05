@@ -56,8 +56,13 @@ CITI_GOV = {"1Y FRA Sovereign CMT Yield": "citi_fra_1y", "5Y FRA Sovereign CMT Y
 BBG_BOND = {"FRTR 3 ¼ 02/25/2032 Corp - Mid Yield To Maturity": "frtr32_yield",
             "FRTR 3 ¼ 02/25/2032 Corp - Mid Z-Spread (bp)": "frtr32_zspread_bp"}
 
+BBG_SPAIN = {"EUSA1 Curncy - Last Price": "bbg_eur6m_1y_spainfile",          # duplicate of EUSA1, dropped after a check
+             "YI278613 Corp - Mid Yield To Maturity": "bbg_esp_1y",            # Spain generic 1y benchmark (Bloomberg id)
+             "EUSA1 Curncy - YI278613 Corp": "bbg_esp_spread_pct_spainfile"}   # Bloomberg's own spread, percent, dropped
+
 FILES = [  # raw file, reader, column map, tidy file stem
     ("frtr_3.25_feb2032_yield_zspread_2026-10-05.xlsx", "bbg", BBG_BOND, "frtr_3.25_feb2032_yield_zspread_bbg"),
+    ("spain_1y_bbg_2026-10-05.xlsx", "bbg2", BBG_SPAIN, "spain_1y_bbg"),
     ("estr_eonia_euribor6m_1y5y_bbg_2026-10-05.xlsx", "bbg", BBG_SWAPS, "eur_swaps_1y5y_bbg"),
     ("france_italy_1y5y_bbg_2026-10-05.xlsx", "bbg", BBG_GOV, "france_italy_yields_1y5y_bbg"),
     ("estr_eonia_1y5y_citi_2026-10-05.xlsx", "citi", CITI_OIS, "eur_ois_1y5y_citi"),
@@ -65,8 +70,8 @@ FILES = [  # raw file, reader, column map, tidy file stem
 ]
 
 
-def _read_bbg(path, colmap):
-    d = pd.read_excel(path, header=1).iloc[:, 1:]
+def _read_bbg(path, colmap, header=1):
+    d = pd.read_excel(path, header=header).iloc[:, 1:]
     d = d.rename(columns=colmap)
     d["Date"] = pd.to_datetime(d["Date"])
     return d.set_index("Date").sort_index().astype(float)
@@ -85,7 +90,11 @@ def build_tidy(write=True):
     frames = []
     for raw, kind, colmap, stem in FILES:
         path = os.path.join(RAW, raw)
-        d = (_read_bbg if kind == "bbg" else _read_citi)(path, colmap)
+        if kind == "bbg2":                       # Bloomberg export with two blank rows above the header
+            d = _read_bbg(path, colmap, header=2)
+            d = d[[c for c in d.columns if not c.endswith("_spainfile")]]
+        else:
+            d = (_read_bbg if kind == "bbg" else _read_citi)(path, colmap)
         d = d.dropna(how="all")
         d.index.name = "date"
         if write:
@@ -142,6 +151,10 @@ def load(write=False):
             w[f"{c}_ois_{t}_cmt_bp"] = (w[f"ois_{t}"] - cmt) * 100
             w[f"{c}_eur6m_{t}_cmt_bp"] = (w[f"bbg_eur6m_{t}"] - cmt) * 100
         w[f"eur6m_ois_basis_{t}_bp"] = (w[f"bbg_eur6m_{t}"] - w[f"ois_{t}"]) * 100
+    # Spain 1y (received 2026-10-05, from 2011-10-06), both bases, for the "even Spain never breached" check
+    w["esp_1y"] = w["bbg_esp_1y"]
+    w["esp_eur6m_1y_bp"] = (w["bbg_eur6m_1y"] - w["esp_1y"]) * 100
+    w["esp_ois_1y_bp"] = (w["ois_1y"] - w["esp_1y"]) * 100
     # The actual bond, on the deck's basis (swap minus bond). Its Bloomberg z-spread is bond
     # minus the 6m Euribor curve, so the sign flips and the basis moves it (inventory finding 7).
     w["frtr32_ois_bp"] = (w["ois_5y"] - w["frtr32_yield"]) * 100

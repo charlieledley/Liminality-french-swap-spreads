@@ -81,5 +81,11 @@ maturity pickup, and 2bp more than the Bloomberg 5y generic, which suggests the 
 bond or its neighbour. The 2026-10-05 row repeats the 2026-10-02 values and is treated as not
 yet updated.
 
+**8. Spain 1y (received 2026-10-05, evening).** Bloomberg generic 1y Spanish benchmark (id
+YI278613), daily from 2011-10-06 to 2026-10-05, with EUSA1 and Bloomberg's own spread alongside;
+the spread recomputes to 0.01bp. Versus 6m Euribor, swap minus bond: low -428bp on 2012-07-25,
+never below -445bp, below -350bp on 20 days between 2011-11-15 and 2012-07-27. The series does
+not cover the summer-2011 phase of the crisis.
+
 Sign convention throughout: swap minus bond, so a cheap OAT reads negative (decision 0002,
 decided 2026-10-05).

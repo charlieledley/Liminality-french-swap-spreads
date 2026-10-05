@@ -1,0 +1,3 @@
+bond,ticker_type,maturity,coupon_pct,mid_ytm_pct,last_price,source,note
+FRTR 0.5 05/25/2040 144A,Govt,2040-05-25,0.5,5.093,55.630,"Bloomberg screen 2026-10-02 16:00, transcribed by Claude from Charlie's screenshot (analysis/data/raw/hedge_pair_frtr_0.5_2040_vs_4.5_2041_bbg_screen_2026-10-02.png)",low-coupon leg (buy)
+FRTR 4.5 04/25/2041,Corp,2041-04-25,4.5,5.116,93.753,"Bloomberg screen 2026-10-02 16:00, transcribed by Claude from Charlie's screenshot",high-coupon leg (sell)
