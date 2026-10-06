@@ -36,6 +36,8 @@ CSV = os.path.join(HERE, "data", f"hedge_pair_{ASOF}.csv")
 OUT = os.path.join(HERE, "..", "deck", "data", f"hedge_pair_{ASOF}.json")
 CONVERGE_TO = [90, 80, 75, 60, 50, 40]
 RECOVERY = 75                 # Charlie's base assumption, 2026-10-05
+CASH_RATE = 0.022             # Charlie, 2026-10-05: excess cash from the pair earns about EUR STR less a spread, say 2.2%
+BID_OFFER_PER_YEAR = 0.08     # Charlie: ~10 through the middle on the long/short, taken as 0.08 points a year over the hold
 
 
 def cashflow_dates(maturity):
@@ -91,8 +93,13 @@ def build():
             rows.append({"common_price": pstar, "long_leg": round(long_pl, 2), "short_leg": round(short_pl, 2),
                          "net": round(long_pl + short_pl, 2)})
         at_r = next(r for r in rows if r["common_price"] == RECOVERY)
+        excess_cash = ph - f_lo * pl                        # market value sold less market value bought
+        cash_income = excess_cash * CASH_RATE
+        net_all_in = carry + cash_income - BID_OFFER_PER_YEAR
         sizings[name] = {"face_low_per_100_high": round(f_lo, 3), "market_value_low": round(f_lo * pl, 2),
                          "at_recovery": at_r, "recovery": RECOVERY,
+                         "excess_cash": round(excess_cash, 2), "cash_rate": CASH_RATE, "cash_income_per_year": round(cash_income, 2),
+                         "bid_offer_per_year": BID_OFFER_PER_YEAR, "net_carry_all_in_per_year": round(net_all_in, 2),
                          "market_value_high": round(ph, 2), "net_carry_per_year": round(carry, 2),
                          "net_coupon_per_year": round(coupon_net, 2), "net_dv01_per_100_high": round(net_dv01, 4),
                          "convergence": rows}

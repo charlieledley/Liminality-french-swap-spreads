@@ -105,6 +105,10 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
   the rebuild until he says rebuild, then build once, run `deck/qa.py`, render with LibreOffice
   (`C:\Program Files\LibreOffice\program\soffice.exe`, rasterise with `pypdfium2`), look at
   the changed pages and send.
+- **Check chart pages through PowerPoint itself** (PowerShell COM export of the slide to PNG)
+  before sending: LibreOffice and PowerPoint disagree on details that matter. Bitten 2026-10-05:
+  date axes rendered four years late in PowerPoint because python-pptx writes no `c:date1904`
+  element; `xy_chart` now writes it. A QA build to a scratch path uses `DECK_OUT=<path>`.
 - State the honest limit of a claim in the slide body, not a footnote.
 
 ## Output

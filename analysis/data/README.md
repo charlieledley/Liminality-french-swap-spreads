@@ -30,6 +30,8 @@ and source agreement are in `docs/data-inventory-2026-10-05.md`.
 
 | `spain_1y_bbg_2026-10-05.csv` | Spain generic 1y benchmark yield (Bloomberg id YI278613), daily from 2011-10-06; the EUSA1 and spread columns in the export are dropped after a 0.01bp check against the repo's own | Bloomberg |
 
+| `fiscal_eurostat_oecd_bbg_2026-10-05.csv` | Eurostat gross debt and balance (% GDP) for FR, IT, ES, DE, GR (debt only) and OECD net interest (% GDP) for FR, IT, ES, DE, annual 2005-2025, pulled through the Desktop API by `analysis/fiscal.py`; France's ratings in the JSON | Bloomberg (Eurostat, OECD) |
+| `hedge_pair_history_bbg_2026-10-05.csv` | Daily yields and prices of FRTR 0½ 2040 and FRTR 4½ 2041 from 2020-10-01, Desktop API pull | Bloomberg |
 | `hedge_pair_2026-10-02.csv` | FRTR 0½ 05/25/2040 and FRTR 4½ 04/25/2041: price and mid yield on 2026-10-02, transcribed from Charlie's Bloomberg screenshot (`raw/hedge_pair_..._screen_2026-10-02.png`); durations computed in `analysis/hedge_pair.py` | Bloomberg screen, transcribed |
 
 The bond's z-spread is on the opposite sign and the Euribor curve. To put it on the deck's
