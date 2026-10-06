@@ -51,6 +51,8 @@ WK = SH["weekly"]
 BASIS = SH["basis_eur6m_minus_ois_bp"]
 INP = SC["model_inputs"]
 NAMED = {n["id"]: n for n in SC["named"]}
+TP = json.load(open(os.path.join(DATA, "third_party_facts_2026-10-06.json"), encoding="utf-8"))
+PA, PC, PB = TP["political_alpha"], TP["pragmata_calendar"], TP["pragmata_budget_note"]
 # The bond's spread, one number throughout: the model's entry spread on the trade date (-82.9bp). The Bloomberg
 # 5y benchmark yield gives -83.1 and the bond's own mid -82.5 the same day; the bond IS the 5y benchmark, so the
 # deck does not show two figures for it (Charlie, round 2).
@@ -496,16 +498,18 @@ bullets(s, M + 0.28, 2.30, _cw - 0.56, [
 ], size=12.4, gap=9, line=1.12)
 bullets(s, M + _cw + 0.68, 2.30, _cw - 0.56, [
     "Levered unwinds: the 5-year spread fell %.0fbp in ten trading days to %s, the kind of move that comes from forced "
-    "sellers rather than new information." % (-MV["fra_5y_change_10d_bp"], bp(CUR["fra_5y"])),
+    "sellers rather than new information. The triggers: the 2026 deficit target missed (%.1f%% against 5%%), a Scope "
+    "downgrade, and Lagarde calling debt near 120%% of GDP a serious problem."
+    % (-MV["fra_5y_change_10d_bp"], bp(CUR["fra_5y"]), PA["deficit_2026_pct"]),
     "Rates globally moving higher and more volatile: the 5-year euro swap rate is %.2f%% against %.2f%% a year ago, with "
     "the global tightening cycle, in our view, still in its early innings." % (MV["swap_5y_pct"], MV["swap_5y_1y_ago_pct"]),
-    "Polls showing the far right and far left leading into the April 2027 presidential election.",
+    "Polls showing the far right and far left leading into the presidential election of April and May 2027.",
     "A left-wing candidate has floated cancelling the French debt held by the central bank; the ECB called it a treaty "
     "violation, and the market heard both halves.",
 ], size=12.4, gap=9, line=1.12)
-footnote(s, "Fiscal figures: Eurostat and OECD via Bloomberg, latest full year %d. Spread and swap moves: Bloomberg, to %s. The attribution "
-            "of the recent move to levered unwinds is Liminality's judgement. Source: Eurostat, OECD, Bloomberg, Liminality calculations."
-            % (FI7["latest_year"], longdate(MV["asof"])))
+footnote(s, "Fiscal figures: Eurostat and OECD via Bloomberg, latest full year %d. Spread and swap moves: Bloomberg, to %s. Triggers: Political "
+            "Alpha Research, 5 October 2026. The attribution of the recent move to levered unwinds is Liminality's judgement. Source: Eurostat, "
+            "OECD, Bloomberg, Political Alpha, Liminality calculations." % (FI7["latest_year"], longdate(MV["asof"])))
 
 # ================================================================ 8. what is the trade: the TRS, as on slide 24 of the US deck
 BOND = INP["Bond Underlier"].replace("3 1/4", "3¼")
@@ -674,12 +678,15 @@ stat(s, _x, 2.88, _w, "%.0f%%" % FL["FR_debt_pct_gdp"], "gross debt to GDP in %d
      % (_ly, FS["FR_debt_pct_gdp"][FY.index(2019)], 2019, FL["DE_debt_pct_gdp"]), vcolour=NAVY, h=1.18)
 stat(s, _x, 4.21, _w, "%.1f%%" % FL["FR_net_interest_pct_gdp"], "of GDP in net interest in %d, up from %.1f%% in 2020 as the debt reprices: "
      "the feedback loop in which higher yields widen the deficit" % (_ly, FS["FR_net_interest_pct_gdp"][_i20]), vcolour=NEG, h=1.18)
-tbox(s, _x, 5.55, _w, 0.95, "Ratings: S&P %s (%s), Moody's %s, Fitch %s (%s). Fitch cut France to A+ in September 2025 and S&P on "
-     "17 October 2025: two of the three agencies now rate France below the AA category."
+tbox(s, _x, 5.50, _w, 1.05, "Ratings: S&P %s (%s, review 27 Nov), Moody's %s (negative, review 23 Oct), Fitch %s (%s). Fitch and S&P cut France "
+     "to A+ in autumn 2025. The government's own draft budget takes debt from %.1f%% of GDP in 2026 to %.1f%% in 2027 and the interest "
+     "bill from \u20ac%dbn to \u20ac%dbn."
      % (RT.get("RTG_SP_LT_LC_ISSUER_CREDIT", "").rstrip("u"), RT.get("RTG_SP_OUTLOOK", "").lower(), RT.get("RTG_MOODY_LONG_TERM", ""),
-        RT.get("RTG_FITCH_LT_ISSUER_DEFAULT", "").rstrip("u"), RT.get("RTG_FITCH_OUTLOOK", "").lower()), size=10.5, colour=GREY, line=1.14)
+        RT.get("RTG_FITCH_LT_ISSUER_DEFAULT", "").rstrip("u"), RT.get("RTG_FITCH_OUTLOOK", "").lower(),
+        PA["debt_2026_pct_gdp"], PA["debt_2027_pct_gdp"], PA["interest_2026_bn"], PA["interest_2027_bn"]), size=10.0, colour=GREY, line=1.12)
 footnote(s, "Eurostat general government gross debt and balance, OECD Economic Outlook net interest payments, annual, latest full year %d, "
-            "via Bloomberg (%s). Ratings from Bloomberg reference data on the same date. Source: Eurostat, OECD, Bloomberg, Liminality."
+            "via Bloomberg (%s). Ratings and review dates: Bloomberg and Pragmata Partners' calendar, October 2026. Draft-budget debt and "
+            "interest path: Political Alpha Research, 5 October 2026. Source: Eurostat, OECD, Bloomberg, Pragmata, Political Alpha, Liminality."
             % (_ly, longdate(FI["asof"])), w=7.00)
 
 # ================================================================ 13. French politics (drafted by Claude, round 6; verify)
@@ -687,31 +694,38 @@ s = sl()
 title(s, "French politics: the parties and the election", "A presidential election in the spring of 2027, with no bloc holding a majority")
 _y = bullets(s, M, 1.62, 7.55, [
     ("Since the dissolution of June 2024 the National Assembly has been split three ways, between the Rassemblement "
-     "National, the left alliance and the centre-right, with no bloc near a majority. Governments have fallen on the "
-     "budget. Prime Minister Lecornu presented the 2027 budget on 1 October 2026: \u20ac54bn of consolidation, a public-sector "
-     "pay freeze, a deficit target of 5% of GDP, and no majority to pass it.", {"size": 12.4}),
-    ("The presidential election of April 2027 is the event the market is pricing. Jordan Bardella leads the polls for the "
-     "Rassemblement National; Marine Le Pen's 2025 conviction was upheld on appeal and her eligibility rests with the Court "
-     "of Cassation, which may rule only weeks before the vote. \u00c9douard Philippe polls second; Jean-Luc M\u00e9lenchon third.", {"size": 12.4}),
-    ("Rassemblement National: higher spending financed by growth and cuts elsewhere; Bardella has dropped the return to "
-     "retirement at 62 that Le Pen still backs. The party abandoned euro exit after the 2017 debate and proposes no "
-     "referendum on EU membership.", {"size": 12.4}),
+     "National, the left and the centre-right, with no bloc near a majority. Prime Minister Lecornu presented the 2027 "
+     "budget on 1 October 2026: \u20ac%dbn of consolidation, a pay freeze, pensions indexed below inflation, a deficit of %.1f%% "
+     "of GDP against %.1f%% this year. The Socialists say they will censure; the budget passes only if the RN abstains, "
+     "and Le Pen has said she prefers an imperfect budget she can rewrite in office to a special law."
+     % (PA["budget_total_effort_bn"], PA["deficit_2027_target_pct"], PA["deficit_2026_pct"]), {"size": 12.2}),
+    ("The presidential election of 18 April and 2 May 2027 is the event the market is pricing. Marine Le Pen is the "
+     "RN's candidate since the Paris Court of Appeal's ruling of 7 July 2026 cut her ineligibility to end before the vote; "
+     "Jordan Bardella stood aside. She polls 33 to 35% in the first round and beats Philippe 57 to 43 and M\u00e9lenchon 69 to 31 "
+     "in run-off tests. The Cour de cassation is expected to rule on her case by early April 2027, late in the campaign.", {"size": 12.2}),
+    ("Rassemblement National: higher spending financed by growth and cuts elsewhere, including a return to retirement at 62. "
+     "The party abandoned euro exit after the 2017 debate and proposes no referendum on EU membership.", {"size": 12.4}),
     ("La France Insoumise: higher taxes and spending. In August 2026 M\u00e9lenchon revived his proposal to cancel the roughly "
      "18% of French debt held by the Banque de France; the ECB's president called it a clear treaty violation on 10 "
      "September. It is the one proposal that speaks directly to the swap spread.", {"size": 12.4}),
-    ("The centre and centre-right, the government's base, stand for consolidation but cannot pass it alone.", {"size": 12.4}),
-], gap=8, line=1.12)
+    ("The centre and centre-right, the government's base, stand for consolidation but cannot pass it alone. Our advisers put "
+     "the chance of the government falling this autumn at %s and of a dissolution at %s." % (PB["censure_probability"], PB["dissolution_probability"]), {"size": 12.2}),
+], gap=7, line=1.10)
 _x, _w = 8.55, 4.16
 _pm = [("Le Pen", "44%"), ("Philippe", "20%"), ("M\u00e9lenchon", "13%"), ("Lisnard", "8%")]
-tbox(s, _x, 1.62, _w, 0.30, "Next president, Polymarket odds (see appendix)", size=11, bold=True, colour=NAVY, font=HFONT)
+tbox(s, _x, 1.62, _w, 0.30, "Next president: Polymarket odds, 4 October 2026", size=11, bold=True, colour=NAVY, font=HFONT)
 _rows = [["Candidate", "Odds"]] + [[n, o] for n, o in _pm]
-table(s, _x, 1.98, _w, _rows, colw=[2.96, 1.20], size=11.0, rowh=0.34, headh=0.34, neutral=range(1, 5))
-tbox(s, _x, 3.80, _w, 1.6, "What matters for the trade is not who wins but whether the next government can pass a budget that "
-     "stops the debt ratio rising, and whether any candidate questions the debt itself. The first drives the spread; the "
-     "second is the tail the floor is there for.", size=11.5, colour=GREY, line=1.16)
-footnote(s, "Odds from the Polymarket capture in the appendix (as of 4 October 2026). Budget: France 24 and the Council of Ministers, "
-            "1 October 2026. Le Pen: Paris Court of Appeal ruling of July 2026 and the pending Cassation appeal. M\u00e9lenchon: Reuters, "
-            "26 August 2026; Lagarde, 10 September 2026. RN and the euro: Euronews, 17 September 2026. Source: as cited, Liminality.")
+table(s, _x, 1.96, _w, _rows, colw=[2.96, 1.20], size=10.5, rowh=0.30, headh=0.30, neutral=range(1, 5))
+tbox(s, _x, 3.62, _w, 0.30, "Polls, September 2026", size=11, bold=True, colour=NAVY, font=HFONT)
+_rows = [["First round (OpinionWay)", "Share"], ["Le Pen", "33 to 35%"], ["Mélenchon", "16 to 17%"],
+         ["Run-off (Harris, 28 Sep)", "Result"], ["Le Pen v Philippe", "57 to 43"], ["Le Pen v Mélenchon", "69 to 31"]]
+table(s, _x, 3.96, _w, _rows, colw=[2.76, 1.40], size=10.5, rowh=0.30, headh=0.30, neutral=range(1, 6))
+tbox(s, _x, 5.84, _w, 0.72, "What matters for the trade is not who wins but whether the next government can pass a budget that "
+     "stops the debt ratio rising, and whether any candidate questions the debt itself: the first drives the spread, the "
+     "second is what the floor is for.", size=9.5, colour=GREY, line=1.08)
+footnote(s, "Odds: Polymarket, 4 October 2026. Polls: OpinionWay, September 2026, and Harris Interactive, 28 September 2026. Budget, RN "
+            "position and polls via Political Alpha Research, 5 October 2026; probabilities via Pragmata Partners, 30 September 2026. "
+            "Le Pen: Court of Appeal, 7 July 2026. Mélenchon: Reuters, 26 August 2026; Lagarde, 10 September 2026.")
 
 # ================================================================ 14. why no default, or exit (drafted by Claude, round 6)
 s = sl()
@@ -943,16 +957,14 @@ note(s, M, _y + 0.18, CW, "What the structure does and does not protect against"
      "losses before expiry are possible without any loss at expiry."
      % (longdate(INP["Opt Expiry"]), bp(NAMED["BE"]["spread_bp"]), bp(NAMED["IMP"]["spread_bp"])), size=11.5, line_=RULE, fill=WHITE)
 
-# ================================================================ 16. appendix: election odds
+# ================================================================ 20. appendix: the calendar and the election odds
 s = sl()
-title(s, "Appendix: presidential election odds", "Polymarket, next French presidential election, as captured in the 2026-10-04 draft")
-if os.path.exists(POLYMARKET):
-    s.shapes.add_picture(POLYMARKET, Inches(M), Inches(1.60), Inches(7.60))
-bullets(s, 8.55, 1.70, 4.16, ["Le Pen is expected to win. Mélenchon is about 13% currently.",
-                              "[French presidential calendar to follow]"], size=13.2, gap=10, line=1.12)
-footnote(s, "Source: Polymarket.com, screenshot as of the draft of 4 October 2026. Third-party chart, not Liminality data.")
-internal_note(s, 8.55, 3.40, 4.16, "The election calendar page (draft slide 11, '[insert]') is still to be supplied. The Polymarket "
-                                   "picture is the draft's; a fresh capture is needed before circulation.", size=10)
+title(s, "Appendix: the political and fiscal calendar", "From the RN counter-budget to the second round of the presidential election")
+_rows = [["When", "What"]] + [[d, w] for d, w in PC["events"]]
+table(s, M, 1.55, CW, _rows, colw=[1.90, CW - 1.90], size=10.0, rowh=0.26, headh=0.30, neutral=range(1, len(_rows)),
+      aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT])
+footnote(s, "Calendar: Pragmata Partners, French Political and Fiscal Risk Calendar prepared for Liminality, October 2026; ratings as stated "
+            "there. Source: Pragmata.")
 
 # ================================================================ appendix: hedges, the low-coupon / high-coupon pair (moved to the appendix, round 4) (Charlie, 2026-10-05)
 HP = json.load(open(os.path.join(DATA, "hedge_pair_2026-10-02.json"), encoding="utf-8"))

@@ -1,0 +1,61 @@
+{
+ "note": "Facts transcribed by Claude from documents Charlie supplied on 2026-10-06 (docs/research/). Each item names its source. Not pulled data; quoted third-party research.",
+ "pragmata_calendar": {
+  "source": "Pragmata Partners, French Political and Fiscal Risk Calendar, prepared for Liminality, October 2026 (docs/research/pragmata-france-fiscal-policy-calendar-2026-10.pdf)",
+  "debt_q1_2026_pct_gdp": 117.5,
+  "debt_q4_2025_pct_gdp": 115.7,
+  "growth_2026_forecast_pct": 0.5,
+  "unemployment_q2_2026_pct": 8.3,
+  "events": [
+   ["6 Oct 2026", "Rassemblement National presents its counter-budget"],
+   ["9-10 and 16-17 Oct", "Socialist primary, two rounds"],
+   ["12-19 Oct", "Assembly debates the revenue side of the 2027 budget"],
+   ["20 Oct", "Assembly vote on the first part of the budget"],
+   ["23 Oct", "Moody's review (Aa3, negative outlook)"],
+   ["27 Oct", "Social Security funding bill vote; spending debate begins"],
+   ["29 Oct", "ECB decision"],
+   ["30 Oct", "Q3 GDP, first estimate"],
+   ["17 Nov", "Assembly vote on the full budget, first reading"],
+   ["27 Nov", "S&P review (A+, stable)"],
+   ["Nov", "European Commission autumn forecast and opinion under the excessive deficit procedure"],
+   ["Late Nov to Dec", "Senate and the parliamentary shuttle; budget in place by 31 Dec, or a special law"],
+   ["11 Dec", "KBRA review (AA-, stable)"],
+   ["17 Dec", "ECB decision"],
+   ["Late Mar 2027", "INSEE full-year 2026 deficit and debt"],
+   ["By early Apr 2027", "Expected Cour de cassation ruling in the Le Pen case"],
+   ["18 Apr 2027", "Presidential election, first round"],
+   ["29 Apr 2027", "ECB decision, between the two rounds"],
+   ["2 May 2027", "Presidential election, second round"]
+  ]
+ },
+ "pragmata_budget_note": {
+  "source": "Pragmata Partners memo to Liminality, 30 September 2026, drawing on a Paris-based colleague (docs/research/pragmata-french-budget-negotiations-2026-10-01.pdf)",
+  "censure_probability": "30-40%",
+  "dissolution_probability": "5-10%",
+  "adoption_route_odds": "ordinances 50-60%, negotiated 49.3 30-40%, special law 5-10%",
+  "deficit_target_2027_initial_pct": 4.3,
+  "deficit_target_2027_revised_pct": 5.0,
+  "censure_arithmetic": "289 votes needed of 577; RN and allies 139, left excluding PS 126, non-affiliated 5 = 270; PS (68) or LR (48) decide"
+ },
+ "political_alpha": {
+  "source": "Political Alpha Research, 'France: The Budget Now Runs Through Le Pen', 5 October 2026 (docs/research/political-alpha-france-budget-2026-10.pdf)",
+  "budget_new_measures_bn": 43,
+  "budget_total_effort_bn": 54,
+  "deficit_2026_pct": 5.4,
+  "deficit_2027_target_pct": 5.0,
+  "debt_2026_pct_gdp": 119.3,
+  "debt_2027_pct_gdp": 121.7,
+  "interest_2026_bn": 79,
+  "interest_2027_bn": 91,
+  "growth_2027_assumed_pct": 1.0,
+  "oat_bund_10y_spread_bp": "above 140, widest since 2012",
+  "lecornu_pledge": "17 September 2026: no 49.3 and no ordinances absent obstruction",
+  "socialists": "all four left group leaders on record they would vote to censure",
+  "rn_position": "Le Pen prefers an imperfect, operational budget she can rewrite over a special law; the RN need only abstain for the budget to pass",
+  "poll_first_round": "Le Pen 33-35%, Melenchon 16-17% (OpinionWay, September 2026)",
+  "poll_runoffs": "Le Pen beats Philippe 57-43 and Melenchon 69-31 (Harris Interactive, 28 September 2026)",
+  "ratings": "Moody's Aa3 negative outlook; Scope downgraded France in the week of 28 September 2026",
+  "lagarde_30_sept": "debt approaching 120% of GDP with no clear path to control it is a serious problem (La Croix, 30 September 2026)",
+  "scenarios": "RN stands aside and the budget passes in December (slightly more likely); RN hardens and the government falls; a market crisis removes the room for a deal"
+ }
+}
