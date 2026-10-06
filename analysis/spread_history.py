@@ -114,6 +114,13 @@ def build():
                     "mean_2008_2012": float(s["2008":"2012"].mean()),
                     "yearly_mean": {int(y): float(v) for y, v in s.groupby(s.index.year).mean().items()}}
     out["basis_eur6m_minus_ois_bp"] = basis
+    # recent moves, for the "why is there a dislocation" page: the last ten trading days and the last year
+    f5 = w["fra_eur6m_5y_bp"].dropna(); sw5 = w["bbg_eur6m_5y"].dropna()
+    out["moves"] = {"asof": str(f5.index[-1].date()),
+                    "fra_5y_change_10d_bp": float(f5.iloc[-1] - f5.iloc[-11]), "fra_5y_10d_ago_bp": float(f5.iloc[-11]),
+                    "fra_5y_change_1y_bp": float(f5.iloc[-1] - f5.asof(f5.index[-1] - pd.Timedelta(days=365))),
+                    "swap_5y_pct": float(sw5.iloc[-1]), "swap_5y_1y_ago_pct": float(sw5.asof(sw5.index[-1] - pd.Timedelta(days=365))),
+                    "swap_5y_change_1y_bp": float((sw5.iloc[-1] - sw5.asof(sw5.index[-1] - pd.Timedelta(days=365))) * 100)}
     # the levels on the data date, percent, for the what-is-a-swap-spread and arithmetic pages
     lv = w.loc[last_date]
     out["levels_pct"] = {k: float(lv[k]) for k in ("bbg_fra_1y", "bbg_eur6m_1y", "bbg_estr_1y",

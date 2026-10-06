@@ -27,6 +27,7 @@ JSON = os.path.join(HERE, "..", "deck", "data", f"fiscal_{ASOF}.json")
 DEBT = {"FR": "EUDB60FR Index", "IT": "EUDB60IT Index", "ES": "EUDB60ES Index", "DE": "EUDB60DE Index", "GR": "EUDB60GR Index"}
 BAL = {"FR": "EUBDFRAN Index", "IT": "EUBDITAL Index", "ES": "EUBDSPAI Index", "DE": "EUBDGERM Index", "GR": "EUBDGREE Index"}
 INT = {"FR": "OEEOFRPV Index", "IT": "OEEOITPV Index", "ES": "OEEOESPV Index", "DE": "OEEODEPV Index"}
+GDP = {"EZ": "EUACEZ Index", "FR": "EUACFR Index", "DE": "EUACDE Index", "IT": "EUACIT Index", "ES": "EUACES Index", "GR": "EUACGR Index"}  # Eurostat nominal GDP, EUR m
 RATING_FIELDS = ["RTG_SP_LT_LC_ISSUER_CREDIT", "RTG_SP_OUTLOOK", "RTG_MOODY_LONG_TERM", "RTG_FITCH_LONG_TERM",
                  "RTG_FITCH_LT_ISSUER_DEFAULT", "RTG_FITCH_OUTLOOK"]
 
@@ -35,7 +36,7 @@ def pull():
     s = bbg.session()
     cols, src = {}, {}
     for fam, tick, label in ((DEBT, "debt_pct_gdp", "Eurostat gross debt % GDP"), (BAL, "balance_pct_gdp", "Eurostat balance % GDP"),
-                             (INT, "net_interest_pct_gdp", "OECD net interest % GDP")):
+                             (INT, "net_interest_pct_gdp", "OECD net interest % GDP"), (GDP, "gdp_eur_m", "Eurostat nominal GDP, EUR m")):
         for cc, t in fam.items():
             ser, errs = bbg.history(s, t, "PX_LAST", "20050101", "20261005", period="YEARLY")
             if errs or not len(ser):
@@ -46,6 +47,10 @@ def pull():
             src[f"{cc}_{tick}"] = f"{t} ({label})"
     df = pd.DataFrame(cols)
     df.index.name = "year"
+    for cc in ("FR", "DE", "IT", "ES", "GR"):
+        if f"{cc}_gdp_eur_m" in df and "EZ_gdp_eur_m" in df:
+            df[f"{cc}_share_of_ea_gdp_pct"] = df[f"{cc}_gdp_eur_m"] / df["EZ_gdp_eur_m"] * 100
+            src[f"{cc}_share_of_ea_gdp_pct"] = "computed: %s / %s" % (GDP[cc], GDP["EZ"])
     ref, errs = bbg.reference(s, ["FRTR 3.25 02/25/32 Govt"], RATING_FIELDS)
     ratings = {k: v for k, v in ref.get("FRTR 3.25 02/25/32 Govt", {}).items() if v}
     return df, src, ratings
@@ -62,7 +67,11 @@ def build():
          "series": {c: [None if pd.isna(v) else round(float(v), 2) for v in df[c]] for c in df.columns},
          "latest": {c: (None if pd.isna(df[c].iloc[-1]) else round(float(df[c].iloc[-1]), 1)) for c in df.columns},
          "greece_peak": {"debt_pct_gdp": round(float(df["GR_debt_pct_gdp"].max()), 1), "year": int(df["GR_debt_pct_gdp"].idxmax())}
-         if "GR_debt_pct_gdp" in df else None}
+         if "GR_debt_pct_gdp" in df else None,
+         "greece_2011": {"debt_pct_gdp": round(float(df.loc[2011, "GR_debt_pct_gdp"]), 1),
+                         "share_of_ea_gdp_pct": round(float(df.loc[2011, "GR_share_of_ea_gdp_pct"]), 1)},
+         "share_rank_latest": sorted([(c[:2], round(float(df[c].iloc[-1]), 1)) for c in df.columns if c.endswith("_share_of_ea_gdp_pct")],
+                                     key=lambda x: -x[1])}
     with open(JSON, "w", encoding="utf-8") as f:
         json.dump(j, f, indent=1)
     return df, j

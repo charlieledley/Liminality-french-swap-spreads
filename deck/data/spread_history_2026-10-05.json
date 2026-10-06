@@ -364,6 +364,15 @@
    }
   }
  },
+ "moves": {
+  "asof": "2026-10-02",
+  "fra_5y_change_10d_bp": -34.359999999999985,
+  "fra_5y_10d_ago_bp": -48.74000000000001,
+  "fra_5y_change_1y_bp": -38.3,
+  "swap_5y_pct": 3.501,
+  "swap_5y_1y_ago_pct": 2.364,
+  "swap_5y_change_1y_bp": 113.7
+ },
  "levels_pct": {
   "bbg_fra_1y": 3.311,
   "bbg_eur6m_1y": 3.3045,

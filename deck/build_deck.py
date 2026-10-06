@@ -475,23 +475,37 @@ stat(s, _x, 4.85, _w, bp(CUR["fra_1y"] - BOND_BP), "gap between the 1-year and 5
      "curve does not move", vcolour=POS, h=1.50)
 footnote(s, FOOT_CONSTRUCTION)
 
-# ================================================================ 7. why the dislocation
+# ================================================================ 7. why the dislocation (drafted by Claude on Charlie's brackets, round 8)
+FI7 = json.load(open(os.path.join(DATA, "fiscal_2026-10-05.json"), encoding="utf-8"))
+MV = SH["moves"]
+_fl, _fs, _fy = FI7["latest"], FI7["series"], FI7["years"]
 s = sl()
-title(s, "Why is there a dislocation?")
+title(s, "Why is there a dislocation?", "Slow-moving causes, and the fast ones of the last few weeks")
 _cw = (CW - 0.40) / 2
-card(s, M, 1.62, _cw, 3.80, fill=ICE_BG)
-card(s, M + _cw + 0.40, 1.62, _cw, 3.80, fill=WHITE, line=RULE)
-tbox(s, M + 0.28, 1.84, _cw - 0.56, 0.40, "Long-term factors", size=17, bold=True, font=HFONT)
-tbox(s, M + _cw + 0.68, 1.84, _cw - 0.56, 0.40, "Short-term factors", size=17, bold=True, font=HFONT)
-# placeholders in Charlie's brackets: the first two in each column from the 2026-10-04 draft, the rest added 2026-10-05
-bullets(s, M + 0.28, 2.42, _cw - 0.56, ["[Budget, fiscal]", "[Political dysfunction, lack of will to fix the situation]",
-        "[Negative feedback loop, with rising yields pushing the budget deficit further]"],
-        size=13.5, gap=10, line=1.12)
-bullets(s, M + _cw + 0.68, 2.42, _cw - 0.56, ["[Levered unwinds]",
-        "[Rates globally moving higher, higher volatility in rates complex with global tightening cycle back in early innings]",
-        "[Polls showing popularity of far-left and far-right parties; upcoming presidential election]",
-        "[Left-wing leader floats the idea of cancelling French debt held by the central bank]"],
-        size=13.5, gap=10, line=1.12)
+card(s, M, 1.55, _cw, 4.75, fill=ICE_BG)
+card(s, M + _cw + 0.40, 1.55, _cw, 4.75, fill=WHITE, line=RULE)
+tbox(s, M + 0.28, 1.74, _cw - 0.56, 0.40, "Long-term factors", size=17, bold=True, font=HFONT)
+tbox(s, M + _cw + 0.68, 1.74, _cw - 0.56, 0.40, "Short-term factors", size=17, bold=True, font=HFONT)
+bullets(s, M + 0.28, 2.30, _cw - 0.56, [
+    "Budget and fiscal: a deficit of %.1f%% of GDP in %d and debt of %.0f%% of GDP, the widest and the fastest-rising of "
+    "the euro area's four large economies." % (-_fl["FR_balance_pct_gdp"], FI7["latest_year"], _fl["FR_debt_pct_gdp"]),
+    "Political dysfunction: no majority since June 2024, governments falling on the budget, and no visible will to fix "
+    "the arithmetic before the 2027 election.",
+    "A negative feedback loop: net interest has risen from %.1f%% of GDP in 2020 to %.1f%% in %d as the debt reprices, so "
+    "higher yields push the deficit further." % (_fs["FR_net_interest_pct_gdp"][_fy.index(2020)], _fl["FR_net_interest_pct_gdp"], FI7["latest_year"]),
+], size=12.4, gap=9, line=1.12)
+bullets(s, M + _cw + 0.68, 2.30, _cw - 0.56, [
+    "Levered unwinds: the 5-year spread fell %.0fbp in ten trading days to %s, the kind of move that comes from forced "
+    "sellers rather than new information." % (-MV["fra_5y_change_10d_bp"], bp(CUR["fra_5y"])),
+    "Rates globally moving higher and more volatile: the 5-year euro swap rate is %.2f%% against %.2f%% a year ago, with "
+    "the global tightening cycle, in our view, still in its early innings." % (MV["swap_5y_pct"], MV["swap_5y_1y_ago_pct"]),
+    "Polls showing the far right and far left leading into the April 2027 presidential election.",
+    "A left-wing candidate has floated cancelling the French debt held by the central bank; the ECB called it a treaty "
+    "violation, and the market heard both halves.",
+], size=12.4, gap=9, line=1.12)
+footnote(s, "Fiscal figures: Eurostat and OECD via Bloomberg, latest full year %d. Spread and swap moves: Bloomberg, to %s. The attribution "
+            "of the recent move to levered unwinds is Liminality's judgement. Source: Eurostat, OECD, Bloomberg, Liminality calculations."
+            % (FI7["latest_year"], longdate(MV["asof"])))
 
 # ================================================================ 8. what is the trade: the TRS, as on slide 24 of the US deck
 BOND = INP["Bond Underlier"].replace("3 1/4", "3¼")
@@ -545,16 +559,23 @@ _cards = [
 ]
 for _i, (_hd, _big, _col, _bd) in enumerate(_cards):
     _cx = M + _i * (_cw3 + 0.30)
-    card(s, _cx, _y0, _cw3, 3.55, fill=ICE_BG if _i != 1 else WHITE, line=None if _i != 1 else RULE)
+    card(s, _cx, _y0, _cw3, 3.20, fill=ICE_BG if _i != 1 else WHITE, line=None if _i != 1 else RULE)
     tbox(s, _cx + 0.22, _y0 + 0.20, _cw3 - 0.44, 0.34, _hd, size=14, bold=True, font=HFONT)
     tbox(s, _cx + 0.22, _y0 + 0.62, _cw3 - 0.44, 0.50, _big, size=24, bold=True, font=HFONT, colour=_col)
-    tbox(s, _cx + 0.22, _y0 + 1.30, _cw3 - 0.44, 2.10, _bd, size=11.5, colour=GREY, line=1.16)
-_cap = 100e6 * 1e-4 / 1.1e6 * 100
-note(s, M, 5.42, CW, "On the capital",
-     "Everything above is per 100m of bond notional, against %sm of capital. One basis point a year on 100m is 10,000, "
-     "which is %.1f%% a year on the capital; the roll-down, realised once at a one-year duration, is worth about %.0f%% of capital "
-     "per 100bp of tightening. The option premium is the cost that pays for the floor; the IRRs on the scenario page are after it."
-     % ("1.1", _cap, 100e6 * 1e-2 / 1.1e6 * 100), size=11.5, line_=RULE, fill=WHITE)   # 100bp x 1y duration = 1% of notional
+    tbox(s, _cx + 0.22, _y0 + 1.30, _cw3 - 0.44, 1.75, _bd, size=11.5, colour=GREY, line=1.16)
+# the chain on the capital, approximate and for intuition (Charlie, round 7): carry per year on capital, over the life,
+# plus the roll-down once; the model's multiple nets the basis and the option premium
+_CAP_M = 1.1
+_carry_yr = -INP["Entry spread"] * 1e-4 * 100 / _CAP_M * 100           # % of capital a year from the spread carry on 100m
+_carry_life = _carry_yr * INP["Yrs Time to Expiry"]
+_roll_once = (S3["spread_bp"] - BOND_BP) * 1e-4 * 100 / _CAP_M * 100  # % of capital, 1bp = 1 cent per 100 at a one-year duration
+note(s, M, 5.05, CW, "On the capital, approximately, for intuition",
+     "The position is 100m of bond notional against %sm of capital. Carry of %.0fbp a year on 100m is about %.0f%% of the "
+     "capital a year, or about %.0f%% over the %.1f years. The roll-down, about %.0fbp realised once at a one-year duration, "
+     "adds about %.0f%%. That is roughly %.0f%% before the floating-leg basis and the option premium; the model's %.2fx, "
+     "which nets both, is on the scenario page."
+     % (_CAP_M, -INP["Entry spread"], _carry_yr, _carry_life, INP["Yrs Time to Expiry"], S3["spread_bp"] - BOND_BP, _roll_once,
+        _carry_life + _roll_once, S3["moic"]), size=11.5, line_=RULE, fill=WHITE)
 footnote(s, "Levels on %s: bond yield from Bloomberg; matched-maturity swap implied by the model's entry spread of %s; basis from "
             "the 5-year 6m Euribor swap less the 5-year €STR OIS. Roll-down ignores convexity and any change in the curve. "
             "Source: Bloomberg, Liminality calculations." % (longdate(DATA_DATE), bp(INP["Entry spread"], dp=1)), w=7.20)
@@ -653,8 +674,8 @@ stat(s, _x, 2.88, _w, "%.0f%%" % FL["FR_debt_pct_gdp"], "gross debt to GDP in %d
      % (_ly, FS["FR_debt_pct_gdp"][FY.index(2019)], 2019, FL["DE_debt_pct_gdp"]), vcolour=NAVY, h=1.18)
 stat(s, _x, 4.21, _w, "%.1f%%" % FL["FR_net_interest_pct_gdp"], "of GDP in net interest in %d, up from %.1f%% in 2020 as the debt reprices: "
      "the feedback loop in which higher yields widen the deficit" % (_ly, FS["FR_net_interest_pct_gdp"][_i20]), vcolour=NEG, h=1.18)
-tbox(s, _x, 5.55, _w, 0.95, "Ratings: S&P %s (%s), Moody's %s, Fitch %s (%s). Each notch moves France further from the AA bucket "
-     "that many mandates and collateral schedules are written around."
+tbox(s, _x, 5.55, _w, 0.95, "Ratings: S&P %s (%s), Moody's %s, Fitch %s (%s). Fitch cut France to A+ in September 2025 and S&P on "
+     "17 October 2025: two of the three agencies now rate France below the AA category."
      % (RT.get("RTG_SP_LT_LC_ISSUER_CREDIT", "").rstrip("u"), RT.get("RTG_SP_OUTLOOK", "").lower(), RT.get("RTG_MOODY_LONG_TERM", ""),
         RT.get("RTG_FITCH_LT_ISSUER_DEFAULT", "").rstrip("u"), RT.get("RTG_FITCH_OUTLOOK", "").lower()), size=10.5, colour=GREY, line=1.14)
 footnote(s, "Eurostat general government gross debt and balance, OECD Economic Outlook net interest payments, annual, latest full year %d, "
@@ -665,17 +686,21 @@ footnote(s, "Eurostat general government gross debt and balance, OECD Economic O
 s = sl()
 title(s, "French politics: the parties and the election", "A presidential election in the spring of 2027, with no bloc holding a majority")
 _y = bullets(s, M, 1.62, 7.55, [
-    ("Since the dissolution of June 2024 the National Assembly has been split three ways, between the left alliance, the "
-     "centre and the Rassemblement National, with no bloc near a majority. Governments have fallen on the budget, and "
-     "each budget has passed late and by decree.", {"size": 12.8}),
-    ("The presidential election of spring 2027 is the event the market is pricing. The far right leads the polls; the far "
-     "left is the third force. Neither has governed, and both have fiscal programmes that widen the deficit.", {"size": 12.8}),
-    ("Rassemblement National: higher spending and lower pension age, financed by growth and by cuts elsewhere; no longer "
-     "proposes leaving the euro.", {"size": 12.8}),
-    ("La France Insoumise: higher taxes and spending; its leader has floated cancelling the French debt held by the "
-     "central bank, which is the one proposal that speaks directly to the swap spread.", {"size": 12.8}),
-    ("The centre and centre-right, the current government's base, stand for consolidation but cannot pass it.", {"size": 12.8}),
-], gap=9, line=1.12)
+    ("Since the dissolution of June 2024 the National Assembly has been split three ways, between the Rassemblement "
+     "National, the left alliance and the centre-right, with no bloc near a majority. Governments have fallen on the "
+     "budget. Prime Minister Lecornu presented the 2027 budget on 1 October 2026: \u20ac54bn of consolidation, a public-sector "
+     "pay freeze, a deficit target of 5% of GDP, and no majority to pass it.", {"size": 12.4}),
+    ("The presidential election of April 2027 is the event the market is pricing. Jordan Bardella leads the polls for the "
+     "Rassemblement National; Marine Le Pen's 2025 conviction was upheld on appeal and her eligibility rests with the Court "
+     "of Cassation, which may rule only weeks before the vote. \u00c9douard Philippe polls second; Jean-Luc M\u00e9lenchon third.", {"size": 12.4}),
+    ("Rassemblement National: higher spending financed by growth and cuts elsewhere; Bardella has dropped the return to "
+     "retirement at 62 that Le Pen still backs. The party abandoned euro exit after the 2017 debate and proposes no "
+     "referendum on EU membership.", {"size": 12.4}),
+    ("La France Insoumise: higher taxes and spending. In August 2026 M\u00e9lenchon revived his proposal to cancel the roughly "
+     "18% of French debt held by the Banque de France; the ECB's president called it a clear treaty violation on 10 "
+     "September. It is the one proposal that speaks directly to the swap spread.", {"size": 12.4}),
+    ("The centre and centre-right, the government's base, stand for consolidation but cannot pass it alone.", {"size": 12.4}),
+], gap=8, line=1.12)
 _x, _w = 8.55, 4.16
 _pm = [("Le Pen", "44%"), ("Philippe", "20%"), ("M\u00e9lenchon", "13%"), ("Lisnard", "8%")]
 tbox(s, _x, 1.62, _w, 0.30, "Next president, Polymarket odds (see appendix)", size=11, bold=True, colour=NAVY, font=HFONT)
@@ -684,8 +709,9 @@ table(s, _x, 1.98, _w, _rows, colw=[2.96, 1.20], size=11.0, rowh=0.34, headh=0.3
 tbox(s, _x, 3.80, _w, 1.6, "What matters for the trade is not who wins but whether the next government can pass a budget that "
      "stops the debt ratio rising, and whether any candidate questions the debt itself. The first drives the spread; the "
      "second is the tail the floor is there for.", size=11.5, colour=GREY, line=1.16)
-footnote(s, "Odds from the Polymarket capture in the appendix (as of the draft of 4 October 2026); party positions summarised from "
-            "published programmes. Source: Polymarket, Liminality.")
+footnote(s, "Odds from the Polymarket capture in the appendix (as of 4 October 2026). Budget: France 24 and the Council of Ministers, "
+            "1 October 2026. Le Pen: Paris Court of Appeal ruling of July 2026 and the pending Cassation appeal. M\u00e9lenchon: Reuters, "
+            "26 August 2026; Lagarde, 10 September 2026. RN and the euro: Euronews, 17 September 2026. Source: as cited, Liminality.")
 
 # ================================================================ 14. why no default, or exit (drafted by Claude, round 6)
 s = sl()
@@ -693,14 +719,14 @@ title(s, "Why we do not think France will default, or leave the euro",
       "Greece wiped out private creditors. Why is it extremely unlikely that France would end up the same way?")
 _gy = FY.index(2011)
 _y = bullets(s, M, 1.62, 7.55, [
-    ("Greece restructured in 2012 because it had lost market access with debt at %.0f%% of GDP, a shrinking economy and "
-     "no central bank of its own to buy time. Private holders took a %s nominal haircut. It was the euro area's "
-     "smallest kind of problem, about 2%% of its output, and still nearly broke the currency."
-     % (FS["GR_debt_pct_gdp"][_gy], "53.5%"), {"size": 12.8}),
-    ("France is the euro area's second-largest economy and its largest borrower. It has never lost market access, its "
-     "debt is %.0f%% of GDP, and it can still borrow for five years at %.2f%%. A French default would not be a Greek "
-     "episode; it would be the end of the euro, which is why every institution's incentive runs the other way."
-     % (FL["FR_debt_pct_gdp"], LV["bbg_fra_5y"]), {"size": 12.8}),
+    ("Greece restructured in March 2012 because it had lost market access in April 2010, with debt at %.0f%% of GDP, a "
+     "shrinking economy and no central bank of its own to buy time. Private holders took a %s nominal haircut on "
+     "\u20ac197bn of bonds. Greece was %.0f%% of euro-area output, and still nearly broke the currency."
+     % (FS["GR_debt_pct_gdp"][_gy], "53.5%", FI["greece_2011"]["share_of_ea_gdp_pct"]), {"size": 12.8}),
+    ("France is %.0f%% of euro-area output, second only to Germany, and its largest sovereign borrower. It has never lost "
+     "market access, its debt is %.0f%% of GDP, and it can still borrow for five years at %.2f%%. A French default would "
+     "not be a Greek episode; it would be the end of the euro, which is why every institution's incentive runs the other way."
+     % (dict(FI["share_rank_latest"])["FR"], FL["FR_debt_pct_gdp"], LV["bbg_fra_5y"]), {"size": 12.8}),
     ("The euro area built its tools after Greece precisely so that a large member would never reach that point: the "
      "ESM, the ECB's OMT, and since 2022 the Transmission Protection Instrument, which lets the ECB buy a member's "
      "bonds when spreads widen for reasons it judges unwarranted.", {"size": 12.8}),
@@ -713,14 +739,15 @@ _y = bullets(s, M, 1.62, 7.55, [
 _x, _w = 8.55, 4.16
 _rows = [["", "Greece, 2011", "France, %d" % _ly],
          ["Debt, % of GDP", "%.0f%%" % FS["GR_debt_pct_gdp"][_gy], "%.0f%%" % FL["FR_debt_pct_gdp"]],
-         ["Market access", "lost, 2010", "continuous"],
+         ["Market access", "lost Apr 2010 to Apr 2014", "continuous"],
          ["Own central bank", "no", "no"],
-         ["Share of euro-area output", "about 2%", "second largest"],
-         ["Outcome", "53.5% haircut, 2012", "\u2014"]]
+         ["Share of euro-area output", "%.0f%%" % FI["greece_2011"]["share_of_ea_gdp_pct"], "%.0f%%, second" % dict(FI["share_rank_latest"])["FR"]],
+         ["Outcome", "53.5% haircut, Mar 2012", "\u2014"]]
 table(s, _x, 1.62, _w, _rows, colw=[1.66, 1.25, 1.25], size=10.0, rowh=0.34, headh=0.34, neutral=range(1, 6),
       aligns=[PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT])
-footnote(s, "Greek and French debt ratios from Eurostat via Bloomberg; Greek PSI terms of March 2012 (53.5%% nominal haircut on "
-            "privately held bonds); France 5-year yield from the curve of %s. Source: Eurostat, Bloomberg, Liminality." % longdate(CV["asof"]))
+footnote(s, "Debt ratios and output shares from Eurostat via Bloomberg (Greece 2011, France %d). Greek market access: EU/IMF programme of "
+            "2 May 2010, first bond sale 10 April 2014. PSI terms of March 2012 from the ESM (53.5%% nominal haircut, \u20ac197bn of \u20ac205bn "
+            "exchanged). France 5-year yield from the curve of %s. Source: Eurostat, ESM, Bloomberg, Liminality." % (_ly, longdate(CV["asof"])))
 
 # ================================================================ 15. the ECB and EU as stabilisers (drafted by Claude, round 6)
 s = sl()
