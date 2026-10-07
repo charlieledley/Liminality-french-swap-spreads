@@ -14,7 +14,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 
-NAVY = RGBColor.from_string("1E2761")
+NAVY = RGBColor.from_string("011C40")      # Jeff's band and text navy (template of 2026-10-07); was 1E2761
 INK = RGBColor.from_string("11142E")
 ICE = RGBColor.from_string("CADCFC")
 ICE_BG = RGBColor.from_string("EEF4FD")
@@ -26,20 +26,35 @@ RULE = RGBColor.from_string("DCE3EF")
 POS = RGBColor.from_string("2C7A5A")
 NEG = RGBColor.from_string("B3332E")
 
-HFONT, BFONT = "Cambria", "Calibri"
+HFONT, BFONT = "Garamond", "Garamond"     # Jeff's serif throughout (Charlie, 2026-10-07); was Cambria / Calibri
 W, H = 13.333, 7.5
 M = 0.62
 CW = W - 2 * M
 TITLE_Y = 0.42
+# Jeff's master: an empty copy of his file scaled to 13.33 x 7.5in through PowerPoint. Each body page is his "Title and
+# Content" layout: the navy band (0 to BAND_H) with the title placeholder, his logo bottom left. Content drawn by the
+# primitives below is shifted down by SHIFT so the pages written for the old title zone clear the band.
+TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "template-liminality-2026-10-07.pptx")
+BAND_H = 1.68
+SHIFT = 0.40
+DARK_GREY = RGBColor.from_string("262626")
+
+
+def Y(y):
+    """Physical y for a content coordinate: the old pages' y plus the band shift."""
+    return Inches(y + SHIFT)
 
 
 _FONTS = {("Calibri", 0, 0): "calibri.ttf", ("Calibri", 1, 0): "calibrib.ttf",
           ("Calibri", 0, 1): "calibrii.ttf", ("Calibri", 1, 1): "calibriz.ttf",
           ("Cambria", 0, 0): "cambria.ttc", ("Cambria", 1, 0): "cambriab.ttf",
-          ("Cambria", 0, 1): "cambriai.ttf", ("Cambria", 1, 1): "cambriaz.ttf"}
+          ("Cambria", 0, 1): "cambriai.ttf", ("Cambria", 1, 1): "cambriaz.ttf",
+          ("Garamond", 0, 0): "GARA.TTF", ("Garamond", 1, 0): "GARABD.TTF",
+          ("Garamond", 0, 1): "GARAIT.TTF", ("Garamond", 1, 1): "GARABD.TTF"}
 _FDIR = r"C:\Windows\Fonts"
 _fc = {}
 LINE_BOX = 1.22          # PowerPoint line box as a multiple of the point size, these faces
+WIDTH_SAFETY = 0.965     # PowerPoint sets Garamond a little wider than the TrueType metrics predict; wrap a touch early
 
 
 def _font(name, bold, italic, pt):
@@ -56,7 +71,7 @@ def _font(name, bold, italic, pt):
 def nlines(text, w_in, pt, name=None, bold=False, italic=False):
     """Lines this string wraps to in a box w_in wide -- measured with the real glyphs."""
     f = _font(name or BFONT, bold, italic, pt)
-    wpx = w_in * 96.0
+    wpx = w_in * 96.0 * WIDTH_SAFETY
     n = 0
     for para in str(text).split("\n"):
         cur, k = "", 1
@@ -77,8 +92,15 @@ def theight(text, w_in, pt, name=None, bold=False, italic=False, line=0.95, spac
             + space_after) / 72.0
 
 
-def blank(prs):
-    return prs.slides.add_slide(prs.slide_layouts[6])
+def blank(prs, keep_title=True):
+    """A page on Jeff's "Title and Content" layout. python-pptx clones the title and body placeholders; the body one is
+    removed (it would show "Click to add text"), the title one kept for title() unless keep_title is False."""
+    lay = prs.slide_layouts.get_by_name("Title and Content") or prs.slide_layouts[0]
+    sl = prs.slides.add_slide(lay)
+    for ph in list(sl.placeholders):
+        if ph.placeholder_format.idx != 0 or not keep_title:
+            ph._element.getparent().remove(ph._element)
+    return sl
 
 
 def bg(slide, colour):
@@ -94,8 +116,9 @@ def bg(slide, colour):
 
 def tbox(slide, x, y, w, h, text, size=14, bold=False, colour=NAVY, font=None,
          align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, space_after=6, line=0.95,
-         italic=False):
-    """A text box. `text` is a string, or a list of (string, {overrides}) tuples."""
+         italic=False, raw=False, underline=False):
+    """A text box. `text` is a string, or a list of (string, {overrides}) tuples. raw=True places it at y exactly
+    (title zone, footnotes, page number); otherwise y is a content coordinate and is shifted below the band."""
     items0 = text if isinstance(text, list) else [(text, {})]
     need = 0.0
     for it in items0:
@@ -103,7 +126,7 @@ def tbox(slide, x, y, w, h, text, size=14, bold=False, colour=NAVY, font=None,
         need += theight(s0, w, o0.get("size", size), o0.get("font", font or BFONT),
                         o0.get("bold", bold), o0.get("italic", italic),
                         o0.get("line", line), o0.get("space_after", space_after))
-    tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(max(h, need)))
+    tb = slide.shapes.add_textbox(Inches(x), Inches(y) if raw else Y(y), Inches(w), Inches(max(h, need)))
     tf = tb.text_frame
     tf.word_wrap = True
     tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
@@ -122,20 +145,34 @@ def tbox(slide, x, y, w, h, text, size=14, bold=False, colour=NAVY, font=None,
         f.size = Pt(o.get("size", size))
         f.bold = o.get("bold", bold)
         f.italic = o.get("italic", italic)
+        f.underline = o.get("underline", underline)
         f.color.rgb = o.get("colour", colour)
     return tb
 
 
 def title(slide, text, sub=None, dark=False):
-    c = WHITE if dark else NAVY
-    tbox(slide, M, TITLE_Y, CW, 0.62, text, size=29, bold=True, colour=c, font=HFONT)
+    """Title in the band's placeholder (white Garamond, as Jeff's), the subtitle beneath it inside the band."""
+    ph = slide.shapes.title
+    if ph is None:
+        tbox(slide, M, 0.34, CW, 0.70, text, size=28, colour=WHITE, font=HFONT, raw=True)
+    else:
+        ph.left, ph.top, ph.width, ph.height = Inches(M), Inches(0.30 if sub else 0.0), Inches(CW), Inches(0.78 if sub else BAND_H)
+        tf = ph.text_frame
+        tf.word_wrap = True
+        tf.margin_left = tf.margin_right = 0
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        para = tf.paragraphs[0]
+        para.alignment = PP_ALIGN.LEFT
+        r = para.add_run()
+        r.text = text
+        r.font.name, r.font.size, r.font.bold = HFONT, Pt(28), False
+        r.font.color.rgb = WHITE
     if sub:
-        tbox(slide, M, TITLE_Y + 0.58, CW, 0.42, sub, size=13, italic=True,
-             colour=ICE if dark else GREY)
+        tbox(slide, M, 1.10, CW, 0.50, sub, size=13.5, italic=True, colour=ICE, raw=True, line=1.0, space_after=0)
 
 
 def card(slide, x, y, w, h, fill=ICE_BG, radius=0.04, line=None):
-    sh = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y),
+    sh = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Y(y),
                                 Inches(w), Inches(h))
     sh.adjustments[0] = radius
     sh.fill.solid()
@@ -194,7 +231,7 @@ def bullets(slide, x, y, w, items, size=13.5, colour=NAVY, gap=10, dot=GOLD, lin
     for it in items:
         s, o = it if isinstance(it, tuple) else (it, {})
         sz, bd = o.get("size", size), o.get("bold", False)
-        d = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x), Inches(cy + 0.072),
+        d = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x), Y(cy + 0.072),
                                    Inches(0.072), Inches(0.072))
         d.fill.solid()
         d.fill.fore_color.rgb = o.get("dot", dot)
@@ -207,37 +244,45 @@ def bullets(slide, x, y, w, items, size=13.5, colour=NAVY, gap=10, dot=GOLD, lin
     return cy
 
 
-FOOT_X = M + 0.42         # clears the page number, bottom left
-FOOT_W = CW - 0.42 - 1.42  # clears the logo, bottom right
+FOOT_X = 2.72             # clears Jeff's logo, bottom left (0.36 to 2.42in on his layout)
+FOOT_W = 8.55              # ends before the page number, bottom right
 
 
 def footnote(slide, text, y=None, colour=LGREY, size=9, w=None):
     """Sits in the lane between the page number (bottom left) and the logo (bottom right)."""
     ww = w if w is not None else FOOT_W
     hgt = theight(text, ww, size, BFONT, False, False, 1.08)
-    tbox(slide, FOOT_X, y if y is not None else H - 0.30 - hgt, ww, hgt, text, size=size,
-         colour=colour, line=1.08, space_after=0)
+    tbox(slide, FOOT_X, y if y is not None else H - 0.26 - hgt, ww, hgt, text, size=size,
+         colour=colour, line=1.08, space_after=0, raw=True)
 
 
 def table(slide, x, y, w, rows, colw=None, head=True, size=11.5, rowh=0.285, headh=0.34,
-          zebra=True, aligns=None, headfill=NAVY, boldcol0=False, neutral=()):
-    """Plain table; rows is a list of lists of strings. Returns the bottom y."""
+          zebra=True, aligns=None, headfill=NAVY, boldcol0=False, neutral=(), rowhs=None,
+          anchor=MSO_ANCHOR.MIDDLE, colours=None):
+    """Plain table; rows is a list of lists of strings. Returns the bottom y.
+
+    rowhs: one height per body row, when the rows must land at given positions (the scenario
+    table's rows sit level with the chart's lines). anchor TOP then keeps the text at the top
+    of a tall row. colours: optional text colour per body row (index 0 = first body row).
+    """
     n, m = len(rows), len(rows[0])
     colw = colw or [w / m] * m
-    gf = slide.shapes.add_table(n, m, Inches(x), Inches(y), Inches(w),
-                                Inches(headh + rowh * (n - 1)))
+    body_h = sum(rowhs) if rowhs else rowh * (n - 1)
+    gf = slide.shapes.add_table(n, m, Inches(x), Y(y), Inches(w),
+                                Inches((headh if head else 0) + body_h))
     t = gf.table
     t.first_row = head
     t.horz_banding = False
     for j, cwj in enumerate(colw):
         t.columns[j].width = Inches(cwj)
     for i, row in enumerate(rows):
-        t.rows[i].height = Inches(headh if (head and i == 0) else rowh)
+        k = i - 1 if head else i
+        t.rows[i].height = Inches(headh if (head and i == 0) else (rowhs[k] if rowhs else rowh))
         for j, val in enumerate(row):
             c = t.cell(i, j)
             c.margin_left = c.margin_right = Inches(0.07)
-            c.margin_top = c.margin_bottom = Inches(0.01)
-            c.vertical_anchor = MSO_ANCHOR.MIDDLE
+            c.margin_top = c.margin_bottom = Inches(0.01 if anchor == MSO_ANCHOR.MIDDLE else 0.035)
+            c.vertical_anchor = anchor
             c.fill.solid()
             if head and i == 0:
                 c.fill.fore_color.rgb = headfill
@@ -260,6 +305,8 @@ def table(slide, x, y, w, rows, colw=None, head=True, size=11.5, rowh=0.285, hea
             f.bold = bool((head and i == 0) or (boldcol0 and j == 0))
             if head and i == 0:
                 f.color.rgb = WHITE
+            elif colours and colours[k] is not None:
+                f.color.rgb = colours[k]
             elif i in neutral or j == 0:
                 # a row whose sign is not a gain or a loss -- skew, kurtosis, a ratio
                 f.color.rgb = NAVY
@@ -292,8 +339,8 @@ def logo(slide, x, y, w, dark_bg=False, _dir=None):
 
 
 def pagenum(slide, n):
-    """Bottom LEFT: the logo occupies the bottom right, and the two collided there."""
-    tbox(slide, M, H - 0.40, 0.30, 0.26, str(n), size=10, colour=LGREY, space_after=0)
+    """Bottom right, as on Jeff's layout (his slide-number placeholder is not cloned onto new slides)."""
+    tbox(slide, W - M - 1.0, H - 0.48, 1.0, 0.26, str(n), size=10.5, colour=GREY, space_after=0, align=PP_ALIGN.RIGHT, raw=True)
 
 
 def logscale(chart):

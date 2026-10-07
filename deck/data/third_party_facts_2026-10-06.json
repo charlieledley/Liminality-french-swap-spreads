@@ -7,25 +7,82 @@
   "growth_2026_forecast_pct": 0.5,
   "unemployment_q2_2026_pct": 8.3,
   "events": [
-   ["6 Oct 2026", "Rassemblement National presents its counter-budget"],
-   ["9-10 and 16-17 Oct", "Socialist primary, two rounds"],
-   ["12-19 Oct", "Assembly debates the revenue side of the 2027 budget"],
-   ["20 Oct", "Assembly vote on the first part of the budget"],
-   ["23 Oct", "Moody's review (Aa3, negative outlook)"],
-   ["27 Oct", "Social Security funding bill vote; spending debate begins"],
-   ["29 Oct", "ECB decision"],
-   ["30 Oct", "Q3 GDP, first estimate"],
-   ["17 Nov", "Assembly vote on the full budget, first reading"],
-   ["27 Nov", "S&P review (A+, stable)"],
-   ["Nov", "European Commission autumn forecast and opinion under the excessive deficit procedure"],
-   ["Late Nov to Dec", "Senate and the parliamentary shuttle; budget in place by 31 Dec, or a special law"],
-   ["11 Dec", "KBRA review (AA-, stable)"],
-   ["17 Dec", "ECB decision"],
-   ["Late Mar 2027", "INSEE full-year 2026 deficit and debt"],
-   ["By early Apr 2027", "Expected Cour de cassation ruling in the Le Pen case"],
-   ["18 Apr 2027", "Presidential election, first round"],
-   ["29 Apr 2027", "ECB decision, between the two rounds"],
-   ["2 May 2027", "Presidential election, second round"]
+   [
+    "6 Oct 2026",
+    "Rassemblement National presents its counter-budget"
+   ],
+   [
+    "9-10 and 16-17 Oct",
+    "Socialist primary, two rounds"
+   ],
+   [
+    "12-19 Oct",
+    "Assembly debates the revenue side of the 2027 budget"
+   ],
+   [
+    "20 Oct",
+    "Assembly vote on the first part of the budget"
+   ],
+   [
+    "23 Oct",
+    "Moody's review (Aa3, negative outlook)"
+   ],
+   [
+    "27 Oct",
+    "Social Security funding bill vote; spending debate begins"
+   ],
+   [
+    "29 Oct",
+    "ECB decision"
+   ],
+   [
+    "30 Oct",
+    "Q3 GDP, first estimate"
+   ],
+   [
+    "17 Nov",
+    "Assembly vote on the full budget, first reading"
+   ],
+   [
+    "27 Nov",
+    "S&P review (A+, stable)"
+   ],
+   [
+    "Nov",
+    "European Commission autumn forecast and opinion under the excessive deficit procedure"
+   ],
+   [
+    "Late Nov to Dec",
+    "Senate and the parliamentary shuttle; budget in place by 31 Dec, or a special law"
+   ],
+   [
+    "11 Dec",
+    "KBRA review (AA-, stable)"
+   ],
+   [
+    "17 Dec",
+    "ECB decision"
+   ],
+   [
+    "Late Mar 2027",
+    "INSEE full-year 2026 deficit and debt"
+   ],
+   [
+    "By early Apr 2027",
+    "Expected Cour de cassation ruling in the Le Pen case"
+   ],
+   [
+    "18 Apr 2027",
+    "Presidential election, first round"
+   ],
+   [
+    "29 Apr 2027",
+    "ECB decision, between the two rounds"
+   ],
+   [
+    "2 May 2027",
+    "Presidential election, second round"
+   ]
   ]
  },
  "pragmata_budget_note": {
@@ -56,6 +113,23 @@
   "poll_runoffs": "Le Pen beats Philippe 57-43 and Melenchon 69-31 (Harris Interactive, 28 September 2026)",
   "ratings": "Moody's Aa3 negative outlook; Scope downgraded France in the week of 28 September 2026",
   "lagarde_30_sept": "debt approaching 120% of GDP with no clear path to control it is a serious problem (La Croix, 30 September 2026)",
-  "scenarios": "RN stands aside and the budget passes in December (slightly more likely); RN hardens and the government falls; a market crisis removes the room for a deal"
+  "scenarios": "RN stands aside and the budget passes in December (slightly more likely); RN hardens and the government falls; a market crisis removes the room for a deal",
+  "scope_downgrade": {
+   "date": "2026-09-18",
+   "from": "AA-",
+   "to": "A+",
+   "outlook": "stable",
+   "source": "Bloomberg, 18 September 2026 (Political Alpha's note gives only 'Scope Ratings downgraded France last week'); checked 2026-10-07"
+  }
+ },
+ "cour_des_comptes_2025": {
+  "source": "Cour des comptes, report on the financial situation and outlook of the pension system, 20 February 2025 (figures as reported by previssima.fr); added 2026-10-07 for slide 13",
+  "report_date": "2025-02-20",
+  "pension_system_balance_2023_bn": 8.5,
+  "pension_system_deficit_2024_bn": 6.6,
+  "pension_system_deficit_2035_bn": 14.6,
+  "retirement_age_option": 65,
+  "age_65_savings_by_2035_bn": 8.4,
+  "savings_year": 2035
  }
 }

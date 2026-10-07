@@ -32,6 +32,7 @@ and source agreement are in `docs/data-inventory-2026-10-05.md`.
 
 | `fiscal_eurostat_oecd_bbg_2026-10-05.csv` | Eurostat gross debt and balance (% GDP) for FR, IT, ES, DE, GR (debt only) and OECD net interest (% GDP) for FR, IT, ES, DE, annual 2005-2025, pulled through the Desktop API by `analysis/fiscal.py`; France's ratings in the JSON | Bloomberg (Eurostat, OECD) |
 | `hedge_pair_history_bbg_2026-10-05.csv` | Daily yields and prices of FRTR 0½ 2040 and FRTR 4½ 2041 from 2020-10-01, Desktop API pull | Bloomberg |
+| `frtr32_price_yield_bbg_2026-10-07.csv` | FRTR 3¼ 02/25/2032 (DK7998596 Govt, ISIN FR0014018OI0): PX_LAST, PX_MID and YLD_YTM_MID, daily 2026-09-25 to 2026-10-07, Desktop API pull for the trade box on slide 4 (price 94.908 and yield 4.326% on the trade date, 2026-10-02) | Bloomberg |
 | `hedge_pair_2026-10-02.csv` | FRTR 0½ 05/25/2040 and FRTR 4½ 04/25/2041: price and mid yield on 2026-10-02, transcribed from Charlie's Bloomberg screenshot (`raw/hedge_pair_..._screen_2026-10-02.png`); durations computed in `analysis/hedge_pair.py` | Bloomberg screen, transcribed |
 
 The bond's z-spread is on the opposite sign and the Euribor curve. To put it on the deck's

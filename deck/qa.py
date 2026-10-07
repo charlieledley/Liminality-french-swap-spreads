@@ -27,6 +27,8 @@ FONTS = {
     ("Calibri", False, True): "calibrii.ttf", ("Calibri", True, True): "calibriz.ttf",
     ("Cambria", False, False): "cambria.ttc", ("Cambria", True, False): "cambriab.ttf",
     ("Cambria", False, True): "cambriai.ttf", ("Cambria", True, True): "cambriaz.ttf",
+    ("Garamond", False, False): "GARA.TTF", ("Garamond", True, False): "GARABD.TTF",
+    ("Garamond", False, True): "GARAIT.TTF", ("Garamond", True, True): "GARABD.TTF",
 }
 FDIR = r"C:\Windows\Fonts"
 _cache = {}

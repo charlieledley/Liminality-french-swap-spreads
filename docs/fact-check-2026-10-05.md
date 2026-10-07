@@ -59,3 +59,19 @@ Confirmed as a local-currency default by a sovereign with its own currency.
 Numbers on it: the fiscal figures above; the 5-year France spread's move over the last ten trading
 days and the last year, and the 5-year swap rate against a year ago, from `analysis/spread_history.py`
 ("moves"); the political events above.
+
+## Slide 13 (round 11, 2026-10-07): why no exit or default, Charlie's text
+
+| Claim | Finding | Source | Slide |
+|---|---|---|---|
+| "Moving the retirement age to [ ] would fix the problem for a decade or more" | The Cour des comptes' report of 20 February 2025: pension-system surplus EUR 8.5bn in 2023, deficit EUR 6.6bn in 2024, EUR 14.6bn projected for 2035; raising the legal age to 65 would save up to EUR 8.4bn by 2035. That covers the pension system's own deficit; it is about 0.3% of GDP against a general deficit of 5.1% of GDP in 2025, so it does not fix the general deficit. | [previssima.fr on the Cour des comptes report](https://www.previssima.fr/actualite/systeme-de-retraite-francais-le-rapport-choc-de-la-cour-des-comptes.html); [Connexion France on the COR](https://www.connexionfrance.com/magazine/people-must-work-until-66-by-2033-to-save-frances-pension-system/749026) | bracket filled with 65 and the figures; the slide says "the pension system's own deficit"; the footnote states the general deficit is a separate matter |
+| "France is too big to fail, with 19% of euro-area output" | 18.7% of euro-area nominal GDP in 2025, Eurostat via Bloomberg | `analysis/fiscal.py` | computed, shown as 19% |
+| "Political integration ... changed in 2012, when they effectively socialized their collective debt" | Charlie's judgement. The ESM treaty entered into force on 27 September 2012; OMT was announced on 6 September 2012. | ESM, ECB | kept as written; dates in the footnote |
+| ESM, OMT, TPI since 2022 | TPI announced 21 July 2022 | ECB | kept |
+| The far right dropped euro exit after 2017 | confirmed in round 8 | see slide 14 (round 6) above | kept |
+
+## Slide 7 (round 11): the ratings downgrade among the triggers
+
+| Claim | Finding | Source | Slide |
+|---|---|---|---|
+| "a Scope downgrade" (from Political Alpha, 5 Oct 2026: "Scope Ratings downgraded France last week") | Scope cut France to A+ from AA- on 18 September 2026, outlook stable, level with Fitch and S&P; Morningstar DBRS moved its AA to a negative outlook the same week | [Bloomberg, 18 Sept 2026](https://www.bloomberg.com/news/articles/2026-09-18/france-s-credit-rating-downgraded-to-a-from-aa-at-scope); [Newsquawk on DBRS](https://www.newsquawk.com/headlines/dbrs-lowers-french-outlook-to-negative-affirms-aa-ratings) | reworded to "a ratings downgrade" at Charlie's request; detail in `third_party_facts` |

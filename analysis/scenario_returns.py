@@ -123,8 +123,12 @@ def build():
             s = round(float(italy["min"]))
             n["label"] = "Italy's 1y point at its euro-crisis low, %s" % italy["min_date"]
             n["from"] = "Italy 1y min 2010-13 (%.1f, %s)" % (italy["min"], italy["min_date"])
+        # Off the grid: interpolate the MOIC (the payoff is linear in the spread between grid points) and derive the
+        # IRR from it with the spreadsheet's own convention. Interpolating the IRR itself understates it where the grid
+        # is coarse, because the IRR is concave in the MOIC: at -350bp it gave 14.0% against 14.5% (noticed 2026-10-07).
+        m = interp(grid, s, "moic")
         named.append({"id": n["id"], "label": n["label"], "spread_bp": s,
-                      "irr": interp(grid, s, "irr"), "moic": interp(grid, s, "moic"),
+                      "irr": (interp(grid, s, "irr") if s in on_grid else (float(m ** (1 / T) - 1) if m > 0 else -1.0)), "moic": m,
                       "pct_since_2010": pct(s), "from": n["from"],
                       "return_source": "spreadsheet grid" if s in on_grid else "linear interpolation between grid points"})
     named.sort(key=lambda n: -n["spread_bp"])      # richest first; the Italy low can sit below full impairment

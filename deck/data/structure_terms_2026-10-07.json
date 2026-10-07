@@ -1,0 +1,7 @@
+{
+ "source": "Charlie, 2026-10-07, from his model, for the trade box on page 4 (percent of bond notional)",
+ "floor_cost_pct_notional": 0.84,
+ "pv_max_loss_pct_notional": 0.247,
+ "total_capital_pct_notional": 1.09,
+ "note": "0.84 + 0.247 = 1.087, shown as 1.09; consistent with 1.1m of capital per 100m of notional in the scenario model"
+}

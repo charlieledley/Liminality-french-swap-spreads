@@ -9,8 +9,8 @@ file needs updating.
 
 The investor deck for a French swap-spread investment: a 4-year-expiry option on a ~5-year
 OAT swap spread (long FRTR 3¼ 02/25/32, pay fixed on a 6m Euribor swap, 4-year non-recourse TRS
-financing at €STR + 17bp), rolling into the 1-year point. The deliverable is a `.pptx` in the
-house format of the put-writing deck, built by script from analysis in this repo. Charlie's draft
+financing at €STR + 17bp), rolling into the 1-year point. The deliverable is a `.pptx` on
+Jeff's template (since 2026-10-07; the put-writing house format before), built by script from analysis in this repo. Charlie's draft
 of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house format is
 `docs/deck-plan-2026-10-04.md`.
 
@@ -101,6 +101,21 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
 - Anything on a slide for Charlie rather than an investor goes through `internal_note()`;
   `INTERNAL_NOTES = False` strips them for the external build.
 - No process language on investor slides ("earlier draft", "prior version", "what changed").
+- **One function per slide, running order in a list** (since 2026-10-07, decision 0008): `ORDER` at
+  the foot of `deck/build_deck.py` is the deck; `CUT` holds pages kept as raw material and not
+  built. Pages are never deleted from the builder: add the name back to `ORDER` to restore one.
+  `DECK_ALL=1` builds every page in the old 23-slide order. Shared data loads sit above the first
+  slide function; a slide function only reads globals.
+- **The deck is on Jeff's template** (decided 2026-10-07, decision 0008): `deck/dsl.py` opens
+  `deck/template-liminality-2026-10-07.pptx` (his master, scaled to 13.33 x 7.5in), body pages use
+  his "Title and Content" layout (navy band with the title placeholder and the subtitle inside the
+  band, his logo bottom left), Garamond throughout. Slide functions keep their old content
+  coordinates; the primitives shift them down by `SHIFT` to clear the band, and `raw=True` on
+  `tbox` places a shape at its literal y (title zone, footnotes, page number). Footnotes live in the
+  lane right of the logo (`FOOT_X`, `FOOT_W`). Garamond text metrics carry a width safety factor.
+- Every page that quotes a hypothetical return carries the `HYPO` sentence in its footnote
+  (Charlie, 2026-10-07); the investment is "the structure" (a total return swap with a floor), not
+  "the option"; the premium is the floor's cost, part of the structure.
 - Charlie sends edits by the slide numbers of the deck he has open; read them that way. Hold
   the rebuild until he says rebuild, then build once, run `deck/qa.py`, render with LibreOffice
   (`C:\Program Files\LibreOffice\program\soffice.exe`, rasterise with `pypdfium2`), look at
