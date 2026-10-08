@@ -14,3 +14,4 @@ decided (date), or superseded by NNNN. Write the file when the decision is made,
 | 0006 | Hedge pair: DV01-neutral, 75 recovery, 2.2% on excess cash, 10 through the middle | decided 2026-10-05 |
 | 0007 | One number for the bond's spread: the model's entry spread, -83bp | decided 2026-10-05 |
 | 0008 | The mini-deck running order (13 slides, Jeff's cut plus Charlie's additions); cut pages kept as functions; template open | decided 2026-10-07 |
+| 0009 | Two builds of one deck (memo and outline); the forward-price view of the return and its reconciliation with Jeff's figures | proposed 2026-10-08 |

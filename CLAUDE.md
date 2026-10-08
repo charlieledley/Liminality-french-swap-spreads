@@ -113,6 +113,12 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
   coordinates; the primitives shift them down by `SHIFT` to clear the band, and `raw=True` on
   `tbox` places a shape at its literal y (title zone, footnotes, page number). Footnotes live in the
   lane right of the logo (`FOOT_X`, `FOOT_W`). Garamond text metrics carry a width safety factor.
+- **Two builds from one builder** (decision 0009, 2026-10-08): `DECK_MODE=memo` (default, the full
+  text, to send out) and `DECK_MODE=outline` (Jeff's lean wording, to present). Pages with text
+  variants branch on `OUTLINE`; figures come from the same JSON in both. Rebuild means both files.
+- The forward-price view (`analysis/forward_price.py`, `deck/data/forward_price_2026-10-05.json`):
+  the bond financed at EUR STR + 17bp, compounded, coupons reinvested; bond-only gains. Jeff's
+  figures and the reconciliation are in decision 0009.
 - Every page that quotes a hypothetical return carries the `HYPO` sentence in its footnote
   (Charlie, 2026-10-07); the investment is "the structure" (a total return swap with a floor), not
   "the option"; the premium is the floor's cost, part of the structure.

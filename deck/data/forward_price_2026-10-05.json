@@ -1,0 +1,163 @@
+{
+ "asof": "2026-10-02",
+ "settlement": "2026-10-05",
+ "expiry": "2031-02-25",
+ "years_to_expiry": 4.39151266255989,
+ "bond": {
+  "name": "FRTR 3 1/4 02/25/32",
+  "coupon": 3.25,
+  "maturity": "2032-02-25",
+  "clean_price": 94.908,
+  "accrued": 1.9767123287671233,
+  "dirty_price": 96.88471232876712,
+  "yield_pct": 4.326,
+  "swap_matched_pct": 3.4969999999999994,
+  "entry_spread_bp": -82.9
+ },
+ "financing": {
+  "estr_ois_interp_pct": 3.1345548853524985,
+  "funding_spread_bp": 17,
+  "rate_pct": 3.3045548853524984,
+  "note": "flat term rate: Bloomberg EESWE 1y and 5y interpolated to the expiry tenor, plus the funding spread"
+ },
+ "forward": {
+  "coupons_received": [
+   "2027-02-25",
+   "2028-02-25",
+   "2029-02-25",
+   "2030-02-25",
+   "2031-02-25"
+  ],
+  "fv_of_dirty_price": 111.7534884527354,
+  "fv_of_coupons": 17.359911544736654,
+  "dirty_price": 94.39357690799875,
+  "accrued_at_expiry": 0.0,
+  "clean_price": 94.39357690799875,
+  "implied_yield_pct": 9.382442515800848,
+  "forward_1y_swap_pct": 3.524654041437869,
+  "implied_spread_bp": -585.778847436298,
+  "spot_1y_swap_pct": 3.3006
+ },
+ "rows": [
+  {
+   "id": "S1",
+   "label": "Median since 2010",
+   "spread_bp": 28.0,
+   "yield_pct": 3.0206,
+   "price": 100.22267391181958,
+   "gain_points": 5.829097003820834,
+   "gain_eur_m_per_100m": 5.829097003820834,
+   "moic": 5.009377892192749
+  },
+  {
+   "id": "S3",
+   "label": "Roll to spot: curve unchanged",
+   "spread_bp": -1.3,
+   "yield_pct": 3.3136,
+   "price": 99.9384398569017,
+   "gain_points": 5.544862948902946,
+   "gain_eur_m_per_100m": 5.544862948902946,
+   "moic": 4.752777193529192
+  },
+  {
+   "id": "S4",
+   "label": "No roll: spread unchanged",
+   "spread_bp": -83.0,
+   "yield_pct": 4.1306,
+   "price": 99.15433119563318,
+   "gain_points": 4.760754287634427,
+   "gain_eur_m_per_100m": 4.760754287634427,
+   "moic": 4.049142657147765
+  },
+  {
+   "id": "S5",
+   "label": "Italy's 2011 crisis level",
+   "spread_bp": -350.0,
+   "yield_pct": 6.8006,
+   "price": 96.67548684183421,
+   "gain_points": 2.2819099338354647,
+   "gain_eur_m_per_100m": 2.2819099338354647,
+   "moic": 1.8218660434158354
+  },
+  {
+   "id": "BE",
+   "label": "Break-even after costs",
+   "spread_bp": -445.0,
+   "yield_pct": 7.7506,
+   "price": 95.8231323073839,
+   "gain_points": 1.4295553993851513,
+   "gain_eur_m_per_100m": 1.4295553993851513,
+   "moic": 1.0
+  },
+  {
+   "id": "IMP",
+   "label": "Full impairment",
+   "spread_bp": -572.0,
+   "yield_pct": 9.0206,
+   "price": 94.7068719122808,
+   "gain_points": 0.3132950042820539,
+   "gain_eur_m_per_100m": 0.3132950042820539,
+   "moic": 0.0
+  },
+  {
+   "id": "FWD",
+   "label": "Forward: what today's prices assume",
+   "spread_bp": -585.778847436298,
+   "yield_pct": 9.382442515800848,
+   "price": 94.39357690799875,
+   "gain_points": 0.0,
+   "gain_eur_m_per_100m": 0.0,
+   "moic": null
+  }
+ ],
+ "breakeven_check": {
+  "price_gain_points": 1.4295553993851513,
+  "floor_cost_pct_notional": 0.84,
+  "residual_points": 0.5895553993851513,
+  "note": "at the model's break-even the bond-only gain less the floor's cost is the residual; the model nets the swap's own P&L, the floating-leg basis and bid-offer, which this page does not"
+ },
+ "jeff_2026_10_08": {
+  "source": "docs/drafts/deck-jeff-outline-edit-v2-received-2026-10-08.pptx, pages 9 to 11",
+  "repo_pct": 3.33,
+  "forward_date": "2031-02-20",
+  "forward_price": 94.72,
+  "forward_yield_pct": 8.93,
+  "forward_1y_swap_pct": 3.52,
+  "spot_1y_swap_pct": 3.33,
+  "forward_spread_bp": -540,
+  "roll_to_spot_bp": -3,
+  "basis_4_4y_bp": 33,
+  "rows": {
+   "S3": [
+    -3,
+    3.36,
+    99.89,
+    5.2
+   ],
+   "S4": [
+    -83,
+    4.16,
+    99.12,
+    4.4
+   ],
+   "BE": [
+    -445,
+    7.79,
+    95.73,
+    1.0
+   ],
+   "S5": [
+    -350,
+    null,
+    96.6,
+    1.9
+   ],
+   "S1": [
+    28,
+    null,
+    100.19,
+    5.5
+   ]
+  }
+ }
+}

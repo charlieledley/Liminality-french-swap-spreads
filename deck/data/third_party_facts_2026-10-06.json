@@ -131,5 +131,186 @@
   "retirement_age_option": 65,
   "age_65_savings_by_2035_bn": 8.4,
   "savings_year": 2035
+ },
+ "wsj_bond_trade_backfired": {
+  "source": "Wall Street Journal, Joe Wallace, 'How the French Bond Trade Backfired on Investors', early October 2026 (the print-to-PDF carries no date; the text describes the selloff of Thursday 1 and Friday 2 October 2026). docs/research/wsj-french-bond-trade-backfired-2026-10.pdf; received from Charlie 2026-10-07",
+  "short_yield_move_pp_two_days": 0.4,
+  "oat_bund_10y_spread_pp_friday": 1.55,
+  "oat_bund_10y_spread_pp_nov_2011_widest": 1.81,
+  "french_govt_bond_market_eur_tn": 3.5,
+  "foreign_owned_share": "more than half (MUFG)",
+  "attribution": "forced selling and the unwind of levered carry trades (SMBC, Pimco, PGIM quoted); 5-year spreads widened more than 10-year, which PGIM's Tipp reads as forced selling rather than a change in creditworthiness",
+  "swap_spread_trade": "buying French and Italian 2- to 5-year bonds against paying on swaps was a popular trade that went the wrong way on Thursday; German bonds outperformed swaps the same day (Morgan Stanley)",
+  "roll_down_noted": "L&G's managers saw the roll-down (a 5-year bond becoming a 4-year bond with a narrower spread) as a source of return but held off because too many investors were still long France"
+ },
+ "wsj_magic_money_debt_bomb": {
+  "source": "Wall Street Journal, Stacy Meichtry and Chelsey Dulaney, 'France's Appetite for Magic Money Has Turned Into a Debt Bomb', early October 2026 ('last week' = the selloff of 1-2 October). docs/research/wsj-france-magic-money-debt-bomb-2026-10.pdf; received from Charlie 2026-10-07",
+  "ten_year_yield": "toward 5%, the highest since 2002",
+  "debt_due_by_2030_usd_tn": "more than 1",
+  "issuance_next_year_usd_bn": 380,
+  "debt_service_rise_by_2030_pct": 59,
+  "debt_service_source": "study commissioned by the French finance ministry",
+  "debt_pct_gdp": "nearly 120",
+  "deficit_2030_projection_pct_gdp": 6.8,
+  "oecd_debt_2050_pct_gdp_no_cuts": 200,
+  "le_pen_retirement_age": "as low as 60, costing an extra EUR 9bn a year by her account",
+  "melenchon_bdf_holdings_eur_bn": 488,
+  "melenchon_quote": "Throw it in the fire",
+  "last_balanced_budget": 1974,
+  "banque_de_france": "no longer buying government bonds; portfolio shrinking as bonds mature",
+  "selloff_amplifier": "the sudden unwind of risky hedge-fund trades that had grown popular in recent months"
+ },
+ "ft_global_bond_rout_2026_10_01": {
+  "source": "Financial Times, Herbert, Smith, Sandlund and Lewis, 'Eurozone borrowing costs surge in global bond rout', 1 October 2026. docs/research/eurozone-borrowing-costs-surge-global-bond-rout-2026-10.pdf; received from Charlie 2026-10-07",
+  "us_10y_high_pct": 5.34,
+  "us_10y_note": "highest in almost a quarter of a century; closed 5.24",
+  "uk_30y_gilt": "above 6% for the first time since 1998",
+  "france_10y_pct": 4.96,
+  "france_10y_note": "highest since mid-2002",
+  "italy_10y_pct": 4.69,
+  "italy_bund_spread_pp": 1.0,
+  "brent_usd": 102.31,
+  "euro_low_usd": 1.1214,
+  "driver": "the Iran war's energy shock on public finances; inflation prints above expectations in Germany, France and Italy",
+  "unwinds": "hedge funds and other big investors forced to ditch long-term debt or unwind lossmaking trades (RBC BlueBay's Bell: 'lots of people are getting stopped out of long positions')",
+  "budget": "the 2027 budget put forward the same day with EUR 43bn of cuts and tax increases"
+ },
+ "ft_france_replaces_italy_2026_08_27": {
+  "source": "Financial Times, Herbert, Wright, Hodgson, Kazmin and Jones, 'France replaces Italy as European bond investors' biggest worry', 27 August 2026. docs/research/france-replaces-italy-bond-investors-biggest-worry-2026-10.pdf",
+  "italy_10y_below_france": "for most of summer 2026",
+  "italy_debt_pct_gdp_2020_to_2026": [
+   154,
+   139
+  ],
+  "france_debt_pct_gdp_2020_to_2026": [
+   114,
+   117
+  ],
+  "debt_source": "ECB data",
+  "italy_primary_balance": "surplus",
+  "france_deficit": "more than 5% of GDP",
+  "pension_reform": "the 2026 budget passed only after Lecornu agreed to suspend the retirement-age reform until after 2027",
+  "japanese_investors": "decreasing their allocation to French bonds (Mizuho)",
+  "worst_market_outcome": "a Melenchon versus Le Pen run-off (Mizuho's Gomez-Liechti)"
+ },
+ "ft_editorial_fiscal_reality_2026_10_01": {
+  "source": "Financial Times editorial board, 'France meets fiscal reality with a crunch', 1 October 2026. docs/research/france-meets-fiscal-reality-with-a-crunch-2026-10.pdf",
+  "debt_pct_gdp": 119,
+  "france_10y_pct": "above 4.9, the highest in the eurozone, from 3.6 in early July",
+  "oat_bund_spread_bp": "more than 125, the highest since the 2012 peak",
+  "last_surplus": 1974,
+  "budget": "EUR 54bn of savings including EUR 43bn of new measures; deficit from 5.4% to 5%, the target missed for 2026",
+  "commission_2030": "deficit 6.8% of GDP by 2030 on current policies; debt service EUR 124bn in 2030, 60% more than defence",
+  "philippe": "proposes retirement at 65 and a 45-year contribution period",
+  "le_pen": "3% deficit ceiling by 2032 without a plan for the ~EUR 140bn of annual savings needed",
+  "ecb": "investors expect the ECB to intervene in a crisis since France is too big to fail; it has the tools; it would face opposition in other capitals to bailing out a country that has repeatedly failed to get its house in order"
+ },
+ "ft_moulin_ecb_not_needed_2026_10_07": {
+  "source": "Financial Times, Sarah White, 'French central bank chief says ECB intervention not needed to ease bond rout', 7 October 2026. docs/research/french-central-bank-chief-ecb-intervention-not-needed-2026-10.pdf",
+  "governor": "Emmanuel Moulin, Banque de France",
+  "quote": "The conditions are not in place now for an intervention by the ECB ... it is here to fight against inflation",
+  "warning": "France risks being 'strangled by interest rates' (to the FT, 5 October 2026)",
+  "melenchon": "called Moulin's warning an 'act of treason' on X; Moulin: 'I will not be intimidated'",
+  "le_pen": "called on the ECB to intervene once public finances are on the mend; presented the RN's budget plan on 6 October",
+  "france_10y_pct_oct_7": 4.87,
+  "oat_bund_spread_pp": "almost 1.4, after briefly above 1.5 the week before"
+ },
+ "ft_batch_2026_10_07": {
+  "source": "Nine Financial Times pieces received from Charlie 2026-10-07 as print-to-PDF, in docs/research/ with text extracts",
+  "lecornu_budget_2026_09_17": {
+   "savings_bn": 54,
+   "deficit_2027_target_pct": 5.0,
+   "deficit_2026_kept_below_pct": 5.5,
+   "interest_bill_2026_bn": 65,
+   "interest_bill_rise_pct": 25,
+   "interest_vs": "bigger than education or defence",
+   "oat_bund_bp": 96,
+   "growth_2026_pct": 0.5,
+   "pension_savings_bn": 6,
+   "corporate_surtax_bn": "8 in 2025, 5 under the new approach"
+  },
+  "interest_bill_2026_09_11": {
+   "interest_bill_2026_bn": 65,
+   "growth_2026_pct": 0.5,
+   "growth_2027_pct": 1.0,
+   "unemployment_pct": 8.3,
+   "ecb_rate_pct": 2.5,
+   "france_10y_pct": 4.45,
+   "france_10y_feb_pct": 3.22,
+   "debt_eur_tn": 3.5,
+   "debt_pct_gdp_q1": 117.6,
+   "ea_debt_pct_gdp": 88.9,
+   "oat_bund_pp": "more than 0.9, widest since 2012, wider than Italy and Greece"
+  },
+  "unhedged_2026_09_02": {
+   "italy_30y_below_france_aug": true,
+   "oat_bund_pp": 0.87,
+   "pctile_since_draghi": 99.8,
+   "oat_bund_2011_peak_pp": 1.89,
+   "price_sensitive_holders_pct": "about 35 (ABN Amro)",
+   "note": "OMT and TPI never used; France would be an awkward test case"
+  },
+  "far_left_fire_plan_2026_09_24": {
+   "bdf_holdings_eur_bn": 488,
+   "share_of_debt_pct": 14,
+   "france_10y_pct": "above 4.6, highest since 2008",
+   "oat_bund": "above 1 point for the first time since the euro crisis",
+   "lagarde": "legally, technically, financially: really not a good idea",
+   "lfi_clarification": "convert to perpetual zero-coupon bonds, Europe-wide, not unilateral (Coquerel)",
+   "blanchard": "without the ECB's accord, very certainly a euro crisis; cancelling shifts the hole to the Banque de France",
+   "voters_worried_about_debt_pct": 75
+  },
+  "vanguard_2026_09_30": {
+   "france_10y_pct": "above 4.8, from 3.2 when the Iran war began; biggest G7 jump",
+   "oat_bund_pp": "above 1.2, first since 2012",
+   "france_minus_italy_pp": "more than 0.2, a record since the 1990s",
+   "koutny": "a long-term degrading credit; 1.5 points a strong possibility",
+   "royal_london": "buying the dip; some price action driven by investors forced to sell at internal risk limits",
+   "hsbc_attfield": "France's debt the cheapest since at least 2008",
+   "aft_2027_issuance_bn": 340,
+   "aft_2027_interest_bn": 72.9
+  },
+  "le_pen_2026_10_06": {
+   "golden_rule": "debt capped at 60% of GDP, deficit cut 0.5% a year, by referendum",
+   "package_bn_5y": 140,
+   "earlier_goal_bn": 125,
+   "state_savings_2027_bn": 71.5,
+   "immigration_savings_bn": 12,
+   "eu_contribution_savings_bn": 9,
+   "pension_claim_bn": "15 to 20, disputed given retirement at 60 for early starters",
+   "subran": "voodoo economics",
+   "france_10y_after_pct": 4.75,
+   "ecb": "called on the ECB to lighten the interest burden once France takes back control"
+  },
+  "big_read_2026_10_06": {
+   "debt_eur_tn": 3.5,
+   "debt_pct_gdp": "nearly 120",
+   "oat_bund_pp": "around 1.4, up almost two-thirds in a month",
+   "interest_2026_bn": 79,
+   "interest_2027_bn": 91,
+   "interest_2027_pct_gdp": 2.9,
+   "yield_assumption_pct": 4.3,
+   "market_yield_pct": 4.8,
+   "tax_burden_pct_gdp": 44,
+   "oecd_avg_pct": 34,
+   "pensions_share_of_spending": "almost a quarter",
+   "primary_deficit": "every year since 2002",
+   "corporates_below_sovereign": "more than a quarter of IG French companies (Goldman)",
+   "moscovici": "too big to fail, but not too big for the markets to punish",
+   "lombard": "we don't work enough",
+   "tpi": "ECB declined to intervene in summer 2022 at an Italian spread of 2.5 points; TPI requires sound and sustainable policies",
+   "moodys_review": "late October"
+  },
+  "alphaville_2026_09_30": {
+   "deficit_2026_pct": 5.5,
+   "note": "10- and 30-year OAT-Bund spreads the widest of the post-whatever-it-takes era"
+  },
+  "moulin_2026_10_05": {
+   "quote": "France is not Greece during the Eurozone crisis",
+   "strangled": "risk of being gradually strangled by rising interest rates",
+   "france_10y": "close to 5% on Friday 2 October, 4.86% on Monday 5 October",
+   "oat_bund_pp": "briefly above 1.5",
+   "ecb": "not the time to be discussing the ECB; the safety net lies closer to home"
+  }
  }
 }
