@@ -16,7 +16,8 @@ both without changes:
 - `tools/bbg-pull/` carries a copy of the Bloomberg skill so the repo is self-contained.
 - Python 3.12 virtual environment in `.venv`, packages in `requirements.txt`, `blpapi` from
   Bloomberg's index.
-- `main` is the integration branch. No remote until Charlie names one.
+- `main` is the integration branch. Remote `origin` is Charlie's personal GitHub account,
+  added 2026-10-09 (it was "no remote until Charlie names one" from initialisation).
 
 ## What was deliberately left out
 
