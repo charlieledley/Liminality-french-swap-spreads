@@ -55,7 +55,8 @@ of 2026-10-04 is in `docs/drafts/` and the plan that maps it onto the house form
 ## Git
 
 - `main` is the integration branch; work on feature branches.
-- No remote yet. **Never add or push to a remote without being asked.**
+- Remote `origin` is Charlie's personal GitHub account (added and pushed 2026-10-09).
+  **Never push without being asked, and only ever to Charlie's personal account.**
 - Several Claude sessions may share this working tree. Before `git add`, run `git status` and
   stage only the files you changed, by path.
 - `.claude/` is gitignored, so settings are per machine.
