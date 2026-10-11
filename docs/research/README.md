@@ -33,6 +33,7 @@ Received 2026-10-06 (the first three) and 2026-10-07 (the WSJ pieces, as print-t
 | `deck-jeff-edit-v4.2-received-2026-10-07.pptx` | Jeff's 9-slide cut of the 23-slide build, in a different template | running order and page edits, decision 0008 |
 | `deck-jeff-turn-charlie-edits-received-2026-10-07.pptx` | Charlie's 13-slide version of Jeff's cut, with pages added back and a new page 13 | the running order the builder follows |
 | `deck-as-sent-to-jeff-2026-10-08.pptx` | the memo build of 2026-10-07 as Charlie sent it to Jeff | the base of Jeff's outline |
+| `deck-outline-as-presented-2026-10-08.pptx` | the outline Charlie presented on 2026-10-08 at 2pm, 14 slides, with his own edits on the build (the trade card labels, page 8 restructured, Jeff's version 2 with the multiples as columns, the ECB page restored) | the builder's running order and wording since round 13 |
 | `deck-jeff-outline-edit-v2-received-2026-10-08.pptx` | Jeff's outline (presentation) version of 2026-10-08 with Charlie's own small changes, plus his versions 2, 3 and 4 of the return page on a forward-price view | the outline build and the three candidate pages (decision 0009) |
 | `deck-proposed-replacements-received-2026-10-06.pptx` | "Proposed slide replacements", a 12-page reviewer draft of 6 October with notes per page; author not stated | two points adopted: the off-grid IRR interpolation (slide 10) and what the floor does not cover (slide 12); the rest not acted on |
 

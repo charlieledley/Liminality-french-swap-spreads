@@ -1,6 +1,6 @@
 # 0009 · Two builds of one deck (memo and outline); the forward-price view of the return
 
-**Status:** proposed 2026-10-08 (Charlie: colleagues find the deck "more of a memo deck to send out for
+**Status:** decided 2026-10-08 afternoon (Charlie presented the outline with Jeff's version 2, restructured as below; versions 3 and 4 not taken) (Charlie: colleagues find the deck "more of a memo deck to send out for
 people to read, too much on the page for a presentation"; Jeff drafted a leaner outline version and
 three alternatives to the "where the return comes from" page; "help me edit and conform the two
 decks; his numbers are slightly different than mine").
@@ -53,3 +53,17 @@ Until he says, the pages show the repo's construction and the footnote states it
 
 - Two files in `exports/` per rebuild; the edits log records which mode an edit applies to.
 - `docs/drafts/deck-as-sent-to-jeff-2026-10-08.pptx` is the memo build Jeff worked from.
+
+## Outcome (2026-10-08, afternoon)
+
+Charlie presented a 14-slide outline with his own edits (`docs/drafts/deck-outline-as-presented-2026-10-08.pptx`).
+The builder follows it in both modes: the return page restructured into carry (with the floating legs folded
+in), roll-down and the option premium; Jeff's version 2 kept, with the model's multiples as the columns and
+the expiry price under each; versions 3 and 4 and the EUR STR appendix cut; the ECB and EU page restored.
+The forward construction stays at EUR STR + 17bp compounded (Jeff's rate, which Charlie accepted).
+
+## Roles (Charlie, 2026-10-09)
+
+The outline is the primary deck, the one sent out and presented (`Liminality_French_Swap_Spreads_<date>.pptx`,
+`DECK_MODE=outline`, the default). The full-text version is his script for presentations and a set of
+back-pocket slides (`..._script_<date>.pptx`, `DECK_MODE=script`); it is not sent out for now.

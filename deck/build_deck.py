@@ -38,9 +38,15 @@ INTERNAL_NOTES = True
 DATA = os.path.join(HERE, "data")
 SH = json.load(open(os.path.join(DATA, f"spread_history_{ASOF}.json"), encoding="utf-8"))
 SC = json.load(open(os.path.join(DATA, f"scenario_irr_moic_{ASOF}.json"), encoding="utf-8"))
-MODE = os.environ.get("DECK_MODE", "memo")           # "memo" (full text, to send out) or "outline" (to present); decision 0009
+# Charlie, 2026-10-09: the outline is the primary deck; the full-text version is his script for presentations and back-pocket
+# slides, not sent out for now (decision 0009). DECK_MODE=outline (default) or DECK_MODE=script ("memo" still accepted).
+MODE = os.environ.get("DECK_MODE", "outline")
+if MODE == "memo":
+    MODE = "script"
 OUTLINE = MODE == "outline"
-OUT = os.environ.get("DECK_OUT") or os.path.join(HERE, "..", "exports", f"Liminality_French_Swap_Spreads_{MODE}_{ASOF}.pptx")
+OUT = os.environ.get("DECK_OUT") or os.path.join(HERE, "..", "exports",
+                                                  f"Liminality_French_Swap_Spreads_{ASOF}.pptx" if OUTLINE else
+                                                  f"Liminality_French_Swap_Spreads_script_{ASOF}.pptx")
 POLYMARKET = os.path.join(HERE, "..", "docs", "drafts", "draft-images", "slide10_Picture_5.png")
 
 B = SH["primary_basis"]                       # "eur6m"
@@ -522,16 +528,16 @@ def slide_exec_summary():
         _rows = [["Bond", "%s at %.2f" % (BOND_NAME.replace(" 02/25/32", " 2/32"), float(PX_TRADE["frtr32_px_last"]))],
                  ["Swap", "Pay fixed vs. 6m Euribor, DV01-neutral"],
                  ["Spread", "%s, %s" % (bp(BOND_BP), rarity_5y())],
-                 ["Floor", "ATMF – %dbp, costs %.2f%%" % (-INP["Floor strike (from ATMF)"], TERMS["floor_cost_pct_notional"])],
-                 ["Max loss", "%.3f%% (PV)" % TERMS["pv_max_loss_pct_notional"]],
-                 ["Capital", "%.2f%% at risk" % TERMS["total_capital_pct_notional"]]]
+                 ["Floor", "ATMF – %dbp, option costs %.2f%% (a)" % (-INP["Floor strike (from ATMF)"], TERMS["floor_cost_pct_notional"])],
+                 ["Max loss", "%.3f%% (b)" % TERMS["pv_max_loss_pct_notional"]],
+                 ["Total Capital", "%.2f%% at risk (a) + (b)" % TERMS["total_capital_pct_notional"]]]
         tbox(s, _x + 0.22, 1.80, _w - 0.44, 0.30, "The trade", size=13.5, bold=True, font=HFONT, space_after=0)
         tbox(s, _x + 0.22, 2.14, _w - 0.44, 0.30, "Long %.1fy France vs. Euribor, non-recourse" % INP["Starting Bond Expiry"], size=11.2, italic=True,
              colour=GREY, space_after=0)
         _ry = 2.56
         for _k, _v in _rows:
-            tbox(s, _x + 0.22, _ry, 1.0, 0.26, _k, size=11.5, bold=True, space_after=0, line=1.0)
-            tbox(s, _x + 1.22, _ry, _w - 1.44, 0.26, _v, size=11.5, space_after=0, line=1.0)
+            tbox(s, _x + 0.22, _ry, 1.20, 0.26, _k, size=11.5, bold=True, space_after=0, line=1.0)
+            tbox(s, _x + 1.42, _ry, _w - 1.64, 0.26, _v, size=11.5, space_after=0, line=1.0)
             _ry += 0.36
         tbox(s, _x + 0.22, _ry + 0.10, _w - 0.44, 0.30, "1.1m buys 100m of exposure", size=12.5, bold=True, space_after=0)
         footnote(s, HYPO + " Italy's 1-year spread was below %s on %d trading days, %s to %s. Spreads are the swap rate less the bond yield "
@@ -569,7 +575,7 @@ def slide_what_is_swap_spread():
     if OUTLINE:
         bullets(s, M, 1.42, _cw, ["Bond yield vs. same-maturity swap rate.", "Buy the OAT, pay fixed on the swap.",
                                   "Can think of it as transforming the fixed rate bond into floating."], size=13.0, gap=5, line=1.1)
-        bullets(s, M + _cw + 0.40, 1.42, _cw, ["Here, spread = swap rate minus bond yield.", "A bond cheap to swaps shows a negative spread."],
+        bullets(s, M + _cw + 0.40, 1.42, _cw, ["The “spread” is the swap rate minus bond yield.", "A bond cheap to swaps shows a negative spread."],
                 size=13.0, gap=5, line=1.1)
     else:
         tbox(s, M, 1.42, _cw, 1.0, "A swap spread is the difference between a government bond yield and the swap rate of the same "
@@ -608,7 +614,7 @@ def slide_dislocation():
          "label": "1-year %s" % bp(CUR["fra_1y"]), "label_pos": "right", "label_size": 9.5},
     ], xmin=SH["pct_start"], xmax=str(DATA_DATE.replace(year=DATA_DATE.year + 3)))
     # Charlie's wording, 2026-10-07; the full construction stays in FOOT_CONSTRUCTION for the cut pages and the record
-    footnote(s, FOOT_SIGN + " As of %s. Source: Bloomberg, Liminality calculations." % longdate(DATA_DATE))
+    footnote(s, "As of %s. Source: Bloomberg, Liminality calculations." % longdate(DATA_DATE))    # sign sentence dropped (Charlie, 2026-10-08)
 
 
 def slide_why_dislocation():
@@ -629,12 +635,11 @@ def slide_why_dislocation():
             "Feedback loop: higher yields widen the deficit further.",
         ], size=13.0, gap=10, line=1.12)
         bullets(s, M + _cw + 0.68, 2.30, _cw - 0.56, [
-            "Levered unwinds: 5y spread %.0fbp in 10 days on a deficit miss and downgrade." % MV["fra_5y_change_10d_bp"],
+            "Levered unwinds: 5y spread fell %.0fbp in 10 days on a deficit miss and downgrade" % -MV["fra_5y_change_10d_bp"],
             "Rates: 5y euro swap at %.2f%%, up from %.2f%% a year ago." % (MV["swap_5y_pct"], MV["swap_5y_1y_ago_pct"]),
             "Elections: far right and far left lead 2027 polls.",
             "Mélenchon: proposed cancelling debt held by the central bank.",
         ], size=13.0, gap=10, line=1.12)
-        internal_note(s, M + _cw + 0.68, 5.45, _cw - 0.56, "Short-term factors still need to be tweaked (Charlie, %s)." % longdate(dt.date(2026, 10, 7)), size=10)
         footnote(s, "Fiscal figures: Political Alpha Research, 10/5/2026 (2026 estimates). Spread and swap moves: Bloomberg, to %s. The attribution of "
                     "the recent move to levered unwinds is Liminality's judgement, consistent with the Wall Street Journal's account of forced selling "
                     "(October 2026). Source: Bloomberg, Political Alpha, Wall Street Journal, Liminality calculations." % longdate(MV["asof"]))
@@ -664,7 +669,6 @@ def slide_why_dislocation():
         "The far left-wing candidate for President, Mélenchon, recently proposed cancelling the French debt held by the "
         "central bank.",
     ], size=12.4, gap=9, line=1.12)
-    internal_note(s, M + _cw + 0.68, 5.45, _cw - 0.56, "Short-term factors still need to be tweaked (Charlie, %s)." % longdate(dt.date(2026, 10, 7)), size=10)
     footnote(s, "Fiscal figures: 2026 estimates from the draft budget via Political Alpha Research, 10/5/2026; net interest: OECD via Bloomberg, %d. "
                 "Spread and swap moves: Bloomberg, to %s. Triggers: Political Alpha; Scope's downgrade of 9/18/2026 per Bloomberg. The levered-unwinds "
                 "attribution is Liminality's judgement, consistent with the WSJ and FT accounts of forced selling (October 2026). Source: Bloomberg, "
@@ -704,74 +708,61 @@ def slide_trade():
                 "documentation with the counterparty." % (longdate(INP["Trade Date"]), bp(INP["Entry spread"], dp=1)))
 
 
+
 def slide_return_sources():
-    # 9. the arithmetic: carry and roll-down
+    # 8. where the return comes from. Charlie's restructure of 2026-10-08 (the version he presented): carry on the spread with the
+    # floating legs folded in, the roll-down, and the option premium up front. Outline: heads and figures only, as presented; memo:
+    # a short body under each. His +99bp used a 33bp basis interpolated to 4.4 years; the data's 5-year point gives 98bp.
     s = sl()
-    title(s, "Where the return comes from", "Three return sources, per 100m of bond notional" if OUTLINE else
-          "Carry on the package, the floating-rate basis, and roll-down; all per 100m of bond notional")
+    title(s, "Where the return comes from", None if OUTLINE else "Carry, roll-down and the cost of the floor; all per 100m of bond notional")
     _swap_matched = LV["frtr32_yield"] + INP["Entry spread"] / 100.0        # the matched-maturity swap, from the model's entry spread
+    _b5, _fund = BASIS["5y"]["current"], INP["Funding E+ (bps)"]
+    _carry = -INP["Entry spread"] + _b5 - _fund                              # spread carry plus the floating residual, bp a year
+    _roll = S3["spread_bp"] - BOND_BP
+    _prem = TERMS["floor_cost_pct_notional"] * 100                          # the floor's cost, in bp of notional
     _cw3 = (CW - 0.60) / 3
     _y0 = 1.62
     _cards = [
-        ("1  Carry on the spread", bp(-INP["Entry spread"], dp=1) + " a year", POS,
-         "Receive the bond yield, %.2f%%. Pay the fixed swap rate of the same maturity, %.2f%%. The difference is the swap "
-         "spread, earned for as long as the position is held." % (LV["frtr32_yield"], _swap_matched)),
-        ("2  The floating legs", "basis less %dbp" % INP["Funding E+ (bps)"], GOLD,
-         "The swap pays us 6m Euribor; the financing charges us €STR + %dbp. In the US version the two floating rates are "
-         "both SOFR and cancel. Here the residual is the 6m Euribor / €STR basis, %s on the 5-year curve today, which widens "
-         "when funding markets are stressed." % (INP["Funding E+ (bps)"], bp(BASIS["5y"]["current"]))),
-        ("3  Roll-down", bp(S3["spread_bp"] - BOND_BP, sign=True) + " over the life", NAVY,
-         "The bond is a %.1f-year bond at %s. At expiry it is a 1-year bond, and the 1-year point sits at %s today. If the "
-         "curve does not move, the spread tightens by that difference as the bond rolls, taken as a price gain (the gain is the "
-         "spread change times the DV01: about one cent per basis point for a one-year bond, more for a longer one)."
+        ("1  Carry on the spread", bp(_carry, sign=True) + " per year", POS,
+         "Receive the bond yield, %.2f%%, and pay the matched swap, %.2f%%: %s. Receive 6m Euribor on the swap and pay €STR + %dbp "
+         "on the financing: the %s basis less %dbp adds %s. Earned for as long as the position is held."
+         % (LV["frtr32_yield"], _swap_matched, bp(-INP["Entry spread"]), _fund, bp(_b5), _fund, bp(_b5 - _fund))),
+        ("2  Roll-down", bp(_roll, sign=True) + " over the life", NAVY,
+         "The bond is a %.1f-year bond at %s. At expiry it is a 1-year bond, and the 1-year point sits at %s today. If the curve "
+         "does not move, the spread tightens by that difference as the bond rolls, taken as a price gain (the gain is the spread "
+         "change times the DV01: about one cent per basis point for a one-year bond, more for a longer one)."
          % (INP["Starting Bond Expiry"], bp(BOND_BP), bp(S3["spread_bp"], dp=1))),
+        ("3  Option Premium", bp(-_prem, sign=True) + " up front", NAVY,
+         "The floor is struck %dbp below the forward spread and costs %.2f%% of notional, paid at entry: %s against %s a year "
+         "of carry. It is what makes the leverage non-recourse."
+         % (-INP["Floor strike (from ATMF)"], TERMS["floor_cost_pct_notional"], bp(_prem), bp(_carry))),
     ]
-    if OUTLINE:
-        # Jeff's outline bullets of 2026-10-08; the basis is the 5-year point in the data (his 33bp was interpolated to 4.4 years)
-        _cards = [
-            (_cards[0][0], _cards[0][1], POS, ["Receive the bond yield: %.2f%%." % LV["frtr32_yield"], "Pay the matched swap: %.2f%%." % _swap_matched,
-                                               "Earn the %.0fbp gap while held." % -INP["Entry spread"]]),
-            (_cards[1][0], "%.0f less %dbp" % (BASIS["5y"]["current"], INP["Funding E+ (bps)"]), GOLD,
-             ["Receive Euribor; pay €STR + %dbp." % INP["Funding E+ (bps)"], "5y Euribor/€STR basis is %s." % bp(BASIS["5y"]["current"]),
-              "Basis widens in funding stress."]),
-            (_cards[2][0], _cards[2][1], NAVY, ["Bond rolls from %.1fy (%s) to 1y (%s)." % (INP["Starting Bond Expiry"], bp(BOND_BP), bp(S3["spread_bp"], dp=1)),
-                                                "Unchanged curve: ~%.0fbp of tightening." % (S3["spread_bp"] - BOND_BP), "Gain is taken in the bond price."]),
-        ]
     for _i, (_hd, _big, _col, _bd) in enumerate(_cards):
         _cx = M + _i * (_cw3 + 0.30)
         card(s, _cx, _y0, _cw3, 2.95, fill=ICE_BG if _i != 1 else WHITE, line=None if _i != 1 else RULE)
         tbox(s, _cx + 0.22, _y0 + 0.20, _cw3 - 0.44, 0.34, _hd, size=14, bold=True, font=HFONT)
         tbox(s, _cx + 0.22, _y0 + 0.62, _cw3 - 0.44, 0.50, _big, size=24, bold=True, font=HFONT, colour=_col)
-        if OUTLINE:
-            bullets(s, _cx + 0.22, _y0 + 1.25, _cw3 - 0.44, _bd, size=11.5, gap=5, line=1.1, dot=GREY, colour=GREY)
-        else:
+        if not OUTLINE:
             tbox(s, _cx + 0.22, _y0 + 1.22, _cw3 - 0.44, 1.60, _bd, size=10.8, colour=GREY, line=1.12)
-    # the chain on the capital, approximate and for intuition (Charlie, round 7): carry per year on capital, over the life,
-    # plus the roll-down once; the model's multiple nets the basis and the option premium
+    if OUTLINE:
+        footnote(s, HYPO + " Source: Bloomberg, Liminality calculations.")
+        return
+    # the chain on the capital, approximate and for intuition (Charlie, round 7)
     _CAP_M = 1.1
     _carry_yr = -INP["Entry spread"] * 1e-4 * 100 / _CAP_M * 100           # % of capital a year from the spread carry on 100m
     _carry_life = _carry_yr * INP["Yrs Time to Expiry"]
-    _roll_once = (S3["spread_bp"] - BOND_BP) * 1e-4 * 100 / _CAP_M * 100  # % of capital, 1bp = 1 cent per 100 at a one-year duration
-    if OUTLINE:
-        card(s, M, 4.80, CW, 1.35, fill=WHITE, line=RULE)
-        tbox(s, M + 0.20, 4.92, CW - 0.40, 0.26, "On the capital, approximately", size=12, bold=True, space_after=0)
-        bullets(s, M + 0.20, 5.22, CW - 0.40, [
-            "100m of bond notional on %sm of capital." % _CAP_M,
-            "Carry: ~%.0f%% of capital a year, ~%.0f%% over %.1f years; roll-down adds ~%.0f%%." % (_carry_yr, _carry_life, INP["Yrs Time to Expiry"], _roll_once),
-            "Model's %.2fx nets the basis and floor cost (scenario page)." % S3["moic"],
-        ], size=11, gap=3, line=1.05, dot=GREY, colour=GREY)
-        footnote(s, HYPO + " Source: Bloomberg, Liminality calculations.")
-        return
+    _roll_once = _roll * 1e-4 * 100 / _CAP_M * 100                         # % of capital, 1bp = 1 cent per 100 at a one-year duration
     note(s, M, 4.80, CW, "On the capital, approximately, for intuition",
          "The position is 100m of bond notional against %sm of capital. Carry of %.0fbp a year on 100m is about %.0f%% of the "
          "capital a year, or about %.0f%% over the %.1f years. The roll-down, about %.0fbp realised once at a one-year duration, "
          "adds about %.0f%%. That is roughly %.0f%% before the floating-leg basis and the cost of the floor; the model's %.2fx, "
          "which nets both, is on the scenario page."
-         % (_CAP_M, -INP["Entry spread"], _carry_yr, _carry_life, INP["Yrs Time to Expiry"], S3["spread_bp"] - BOND_BP, _roll_once,
+         % (_CAP_M, -INP["Entry spread"], _carry_yr, _carry_life, INP["Yrs Time to Expiry"], _roll, _roll_once,
             _carry_life + _roll_once, S3["moic"]), size=11.5, line_=RULE, fill=WHITE)
-    footnote(s, HYPO + " The same page on the €STR basis is in the appendix (page %d). Levels on %s: bond yield from Bloomberg; matched-maturity swap implied by the model's entry spread of %s; basis from "
-                "the 5-year 6m Euribor swap less the 5-year €STR OIS. Roll-down ignores convexity and any change in the curve. "
-                "Source: Bloomberg, Liminality calculations." % (page_of("app_return_estr"), longdate(DATA_DATE), bp(INP["Entry spread"], dp=1)), w=7.40)
+    footnote(s, HYPO + " Levels on %s: bond yield from Bloomberg; matched-maturity swap implied by the model's entry spread of %s; basis "
+                "from the 5-year 6m Euribor swap less the 5-year €STR OIS; the floor's cost from the model. Roll-down ignores convexity and "
+                "any change in the curve. Source: Bloomberg, Liminality calculations."
+                % (longdate(DATA_DATE), bp(INP["Entry spread"], dp=1)), w=7.40)
 
 
 def slide_not_credit():
@@ -937,7 +928,7 @@ def slide_no_default():
         _y2 = bullets(s, _x2, 1.55, CW - _lw - 0.45, ["In a crisis, we expect the ECB to step in."], size=14, gap=12, line=1.14)
         bullets(s, _x2 + 0.35, _y2, CW - _lw - 0.80, [
             "EU mutualized debt in 2012; the stakes are higher now.",
-            "Too big to fail: %.0f%% of euro-area output." % dict(FI["share_rank_latest"])["FR"],
+            "Too big to fail: %.0f%% of euro-area output. Over €10T in assets." % dict(FI["share_rank_latest"])["FR"],
             "Backstops exist: ESM, OMT and TPI (2022).",
             "Euro exit means leaving the EU; no major party backs it."], size=13.5, gap=12, line=1.14, dot=GREY)
         footnote(s, "Output share: Eurostat nominal GDP %d via Bloomberg. ESM treaty in force %s; OMT announced %s; TPI %s. "
@@ -964,7 +955,7 @@ def slide_no_default():
     bullets(s, _x2 + 0.35, _y2 - 0.02, _w2 - 0.35, [
         "Political integration in Europe fundamentally changed in 2012, when they effectively socialized their collective debt. "
         "And we believe trade and national security issues are dramatically more significant today.",
-        "France is too big to fail, with %.0f%% of euro-area output. A French default would be the end of the EUR."
+        "France is too big to fail, with %.0f%% of euro-area output. Over €10T in assets. A French default would be the end of the EUR."
         % dict(FI["share_rank_latest"])["FR"],
         "They already have the available tools, built and designed precisely for this purpose: the ESM, the ECB’s OMT and since "
         "2022 the Transmission Protection Instrument.",
@@ -1010,9 +1001,8 @@ def slide_ecb_eu():
              ["Jul 2022", "TPI: buy on unwarranted widening", "announced before use"]]
     table(s, _x, 1.55, _w, _rows, colw=[0.80, 1.86, 1.50], size=9.0, rowh=0.40, headh=0.32, neutral=range(1, 8),
           aligns=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.LEFT])
-    tbox(s, _x, 4.95, _w, 1.2, "Each time the periphery's 1-year spreads blew out, the ECB or the EU added a tool, and each tool was "
-         "larger and earlier than the last. The 2011 lows were made before the tools existed; a French episode would meet "
-         "all of them on day one.", size=11.0, colour=GREY, line=1.16)
+    tbox(s, _x, 4.95, _w, 1.2, "Each time the periphery's spreads blew out, the ECB or the EU added a tool, and each tool was larger and earlier than "
+         "the last. The 2011 lows were made before the tools existed.", size=11.0, colour=GREY, line=1.16)
     footnote(s, "Spreads: swap rate less bond yield versus the 6m Euribor swap, Bloomberg generic 1-year benchmarks (Spain from October 2011). "
                 "Announcement dates from the ECB. Source: Bloomberg, ECB, Liminality calculations.", w=7.30)
 
@@ -1168,7 +1158,6 @@ def slide_risks():
         ("At expiry: a dislocation to Italy's 2011 levels on %s" % longdate(INP["Opt Expiry"]), {"size": 14.0, "bold": True}),
         ("Before expiry: a crisis that leads to exit from the euro, or default", {"size": 14.0, "bold": True}),
     ], gap=14, line=1.1)
-    internal_note(s, M, _y + 0.30, CW, "Text to add (Charlie, %s)." % longdate(dt.date(2026, 10, 7)))
 
 
 
@@ -1384,26 +1373,42 @@ def _fw_read(s, x, y, w):
                                              bp(_s3["spread_bp"], dp=1), _s3["price"], eur_m(_s3["gain_points"])), size=11.5, fill=ICE_BG)
 
 
+
 def slide_return_v2():
-    # Jeff's version 2 (2026-10-08): the spot-versus-forward table, the reading, and the gains by scenario as columns
+    # 9. where does the return come from. Jeff's version 2 as Charlie presented it (2026-10-08): the spot-versus-forward table,
+    # the reading with the full-impairment line, and the model's multiple by scenario as columns with the expiry price beneath.
     s = sl()
-    title(s, "Where does the return come from – version 2",
+    title(s, "Where does the return come from",
           "The forward price assumes %s at expiry; the return is beating that; per 100m notional" % bp(FW["forward"]["implied_spread_bp"]))
     _bot = _fw_table(s, M, 1.62, 5.56)
-    _fw_read(s, M, _bot + 0.30, 5.56)
-    _ids = ["BE", "S5", "S4", "S3", "S1"]
-    _cats = ["%s\n%s\n%.2f" % ({"BE": "Break-even", "S5": "Italy 2011", "S4": "No roll", "S3": "Roll to spot", "S1": "Median"}[i],
-                                 bp(FWROW[i]["spread_bp"], dp=1 if i == "S3" else 0), FWROW[i]["price"]) for i in _ids]
-    tbox(s, 6.60, 1.55, 6.12, 0.26, "Gain on the bond over its forward price at expiry, by 1-year spread and expiry price", size=11, bold=True,
+    _b, _f, _s3, _imp = FW["bond"], FW["forward"], FWROW["S3"], FWROW["IMP"]
+    card(s, M, _bot + 0.30, 5.56, 1.30, fill=ICE_BG)
+    tbox(s, M + 0.20, _bot + 0.42, 5.16, 0.26, "How the return builds", size=12, bold=True, space_after=0)
+    bullets(s, M + 0.20, _bot + 0.72, 5.16, [
+        "The swap barely moves: %.2f%% today, %.2f%% forward." % (_b["swap_matched_pct"], _f["forward_1y_swap_pct"]),
+        "The bond does the work: the forward of %.2f implies %s." % (_f["clean_price"], bp(_f["implied_spread_bp"])),
+        "Full impairment at %s: the bond at %.2f returns 0x." % (bp(_imp["spread_bp"]), _imp["price"]),
+    ], size=11, gap=3, line=1.05, dot=GREY, colour=GREY)
+    _ids = ["IMP", "BE", "S5", "S4", "S3", "S1"]
+    _names = {"IMP": "Full impairment", "BE": "Break-even", "S5": "Italy 2011¹", "S4": "No roll", "S3": "Roll to spot", "S1": "Median"}
+    _cats = ["%s\n%s\n%.2f" % (_names[i], bp(FWROW[i]["spread_bp"], dp=1 if i == "S3" else 0), FWROW[i]["price"]) for i in _ids]
+    tbox(s, 6.60, 1.55, 6.12, 0.26, "Multiple of capital at expiry, by 1-year spread and the bond's expiry price", size=11, bold=True,
          font=HFONT, space_after=0)
-    _c = col_chart(s, 6.60, 1.85, 6.12, 4.30, _cats, [("Gain", [FWROW[i]["gain_points"] for i in _ids], LGREY)], yfmt='"+€"0.0"m"', lab=10, ymin=0)
+    _c = col_chart(s, 6.60, 1.85, 6.12, 4.30, _cats, [("Multiple", [NAMED[i]["moic"] for i in _ids], LGREY)], yfmt='0.0"x"', lab=10, ymin=0)
     _c.value_axis.visible = False
     _c.has_legend = False
     _pl = _c.plots[0]
     for _k, _i in enumerate(_ids):
         _pt = _pl.series[0].points[_k]
         _pt.format.fill.solid(); _pt.format.fill.fore_color.rgb = POS if _i == "S3" else LGREY
-    footnote(s, HYPO + FW_FOOT)
+    _sp = IT["1y"]["days_below_stress_span"]
+    footnote(s, "¹ Italy 2011: Italy's 1-year spread was below %s on %d trading days, %s to %s. " % (bp(IT["1y"]["stress_level_bp"]),
+             IT["1y"]["days_below_stress"], longdate(_sp[0]), longdate(_sp[1]))
+             + HYPO + " Levels on %s. Forward price: the bond financed at €STR + %dbp (%.2f%%, the OIS curve interpolated to expiry) "
+             "compounded to %s. The forward row uses the %.1fy1y forward swap, %.2f%%. Multiples from the scenario model, gross of fees. "
+             "Source: Bloomberg, Liminality calculations."
+             % (longdate(FW["asof"]), FW["financing"]["funding_spread_bp"], FW["financing"]["rate_pct"], longdate(FW["expiry"]),
+                FW["years_to_expiry"], FW["forward"]["forward_1y_swap_pct"]))
 
 
 def slide_return_v3():
@@ -1460,11 +1465,11 @@ def foot_short():
 # The deck as cut down by Jeff and added to by Charlie, 10/7/2026 (docs/drafts/deck-jeff-turn-charlie-edits-received-2026-10-07.pptx).
 # Pages not in ORDER are kept here as raw material (CUT) and are not built.
 ORDER = ["title", "disclaimer", "firm", "exec_summary", "what_is_swap_spread", "dislocation", "why_dislocation",
-         "return_sources", "return_v2", "return_v3", "return_v4",          # Jeff's candidates of 2026-10-08, for Charlie to choose from
-         "scenario", "stress", "risks", "no_default", "app_return_estr"]
+         "return_sources", "return_v2", "scenario", "stress", "ecb_eu", "risks", "no_default"]     # as Charlie presented it, 2026-10-08
 CUT = ["trade",            # "What is the trade?" (the TRS diagram and terms table), taken out by Charlie 2026-10-07
-       "not_credit", "france_different", "fiscal", "politics", "ecb_eu", "base_case", "app_calendar", "app_hedge", "app_estr",
-       "app_bases"]
+       "return_v3", "return_v4",     # Jeff's versions 3 and 4 of the return page, not chosen (2026-10-08)
+       "app_return_estr",            # the €STR version of the return page, dropped from the presented deck (2026-10-08)
+       "not_credit", "france_different", "fiscal", "politics", "base_case", "app_calendar", "app_hedge", "app_estr", "app_bases"]
 if os.environ.get("DECK_ALL"):          # every page, in the old 23-slide order, for comparison builds
     ORDER = keys_all = ["title", "disclaimer", "firm", "exec_summary", "what_is_swap_spread", "dislocation", "why_dislocation", "trade",
                         "return_sources", "not_credit", "france_different", "fiscal", "politics", "no_default", "ecb_eu", "base_case",

@@ -133,3 +133,10 @@ What they add or confirm, against the deck:
 | Le Pen's plan (6 Oct) | a 60% debt cap and 0.5% a year of deficit reduction by referendum; EUR 140bn over five years; retirement at 60 for early starters kept; economists dispute the arithmetic; yields fell 12bp on the day | available for the politics page if it returns |
 | Issuance | AFT: EUR 340bn of medium- and long-term debt net of buybacks in 2027, a record, up about 10% | supports the supply point on the old risks page |
 | Holders | about 35% of OAT holders price-sensitive (ABN Amro); Japanese investors pulling back; more than half foreign-owned (WSJ, MUFG) | available |
+
+## The presented outline of 2026-10-08: two claims checked
+
+| Claim | Finding | Slide |
+|---|---|---|
+| "Italy 2011: the 5th percentile of Italy's 1-year spread from 2010 to 2013, -350bp" (Charlie's footnote on page 9) | On the deck's construction (Bloomberg generic 1-year, versus the 6m Euribor swap) Italy's 1-year spread was below -350bp on 28 of 1,022 trading days in 2010-13, 2.7% of days; the 5th percentile is about -258bp and the 10th about -203bp (`analysis/load_rates.py`, computed 2026-10-08). | footnote rewritten to the day count |
+| "Too big to fail: 19% of euro-area output. Over EUR 10T in assets." (page 14, Charlie's addition) | Referent not stated. The five largest French banking groups' total assets at end-2025 were about $11.6tn (BNP Paribas 3.3, Credit Agricole 3.1, BPCE 2.0, Societe Generale 1.8, Credit Mutuel 1.4; S&P Global via secondary reports), roughly EUR 10tn, which fits the sentence if it means the banking system. If it means national wealth the figure is larger. Awaiting Charlie's confirmation; no source on the slide yet. | kept as written |
